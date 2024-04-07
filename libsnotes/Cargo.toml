@@ -1,0 +1,13 @@
+[package]
+name = "libsnotes"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+chrono = "0.4.37"
+home = "0.5.9"
+[dependencies.rusqlite]
+version = "0.31.0"
+features = ["bundled"]

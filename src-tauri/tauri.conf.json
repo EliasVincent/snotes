@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "snotes-deck",
-    "version": "0.0.0"
+    "version": "0.0.1"
   },
   "tauri": {
     "allowlist": {
@@ -20,7 +20,7 @@
     },
     "windows": [
       {
-        "title": "snotes-deck",
+        "title": "Snotes Deck",
         "width": 800,
         "height": 600
       }
@@ -31,7 +31,7 @@
     "bundle": {
       "active": true,
       "targets": "all",
-      "identifier": "com.tauri.dev",
+      "identifier": "space.maidsin.snotes-deck",
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",

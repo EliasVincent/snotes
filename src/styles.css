@@ -84,6 +84,11 @@ button {
   outline: none;
 }
 
+#show-notes-button {
+  max-width: 30%;
+  align-self: center;
+}
+
 #greet-input {
   margin-right: 5px;
 }

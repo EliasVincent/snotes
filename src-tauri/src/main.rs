@@ -15,9 +15,17 @@ fn get_notes_list() -> String {
     format!("{}", notes)
 }
 
+#[tauri::command]
+fn create_note(content: &str, tag: &str) -> bool {
+    println!("reached");
+    libsnotes::create_note(&content.to_string(), &tag.to_string()).unwrap();
+
+    true
+}
+
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet, get_notes_list])
+        .invoke_handler(tauri::generate_handler![greet, get_notes_list, create_note])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

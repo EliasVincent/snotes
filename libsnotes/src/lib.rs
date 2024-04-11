@@ -1,8 +1,10 @@
 use chrono::Local;
 use home::home_dir;
 use rusqlite::{Connection, Result};
+use serde_json::json;
 
 pub struct Note {
+    id: i32,
     content: String,
     date: String,
     tag: String,
@@ -51,17 +53,17 @@ pub fn create_note(content: &String, tag: &String) -> Result<()> {
     Ok(())
 }
 
-pub fn show_notes(all: bool, tag: &String) -> Result<String, String> {
+pub fn show_notes(all: bool, tag: &str) -> Result<String, String> {
     let home = home_dir().unwrap().join(".snotes.db");
     let connection = Connection::open(home).unwrap();
 
-    let mut query = String::from("SELECT * FROM notes LIMIT 10");
+    let mut query = "SELECT * FROM notes LIMIT 10".to_string();
 
     if all {
-        query = String::from("SELECT * FROM notes");
+        query = "SELECT * FROM notes".to_string();
     }
 
-    if tag != &String::new() {
+    if !tag.is_empty() {
         query = format!("SELECT * FROM notes WHERE tag IS '{}'", tag);
     }
 
@@ -69,24 +71,29 @@ pub fn show_notes(all: bool, tag: &String) -> Result<String, String> {
 
     let notes = prepare.query_map([], |row| {
         Ok(Note {
+            id: row.get(0)?,
             content: row.get(1)?,
             date: row.get(2)?,
             tag: row.get(3)?,
         })
     }).unwrap();
 
-    let mut noteresult = String::new(); // Initialize an empty result string
+    let mut json_array = Vec::new();
 
     for note in notes {
         let unwrapped = note.unwrap();
-        // Append each note to the result string
-        noteresult.push_str(&format!(
-            "{0} #{2}: {1}\n",
-            &unwrapped.date, &unwrapped.content, &unwrapped.tag
-        ));
+        let note_json = json!({
+            "id": unwrapped.id,
+            "date": unwrapped.date,
+            "content": unwrapped.content,
+            "tag": unwrapped.tag
+        });
+        json_array.push(note_json);
     }
 
-    Ok(noteresult) // Return the concatenated result string
+    let json_string = serde_json::to_string(&json_array).unwrap();
+
+    Ok(json_string)
 }
 
 pub fn delete_latest_note() -> Result<()> {

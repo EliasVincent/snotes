@@ -23,7 +23,9 @@ async function createNote() {
 // read
 async function showNotes() {
   if (notesMsgEl) {
-    notesMsgEl.textContent = await invoke("get_notes_list");
+    const notesJson : string = await invoke("get_notes_list");
+    const formattedJson = JSON.stringify(JSON.parse(notesJson), null, 2); // Indentation of 2 spaces
+    notesMsgEl.textContent = formattedJson;
   }
 }
 

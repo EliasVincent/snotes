@@ -1469,6 +1469,7 @@ dependencies = [
  "chrono",
  "home",
  "rusqlite",
+ "serde_json",
 ]
 
 [[package]]

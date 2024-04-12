@@ -1,37 +1,48 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="stylesheet" href="/src/styles.css" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Snotes Deck</title>
-    <script type="module" src="/src/main.ts" defer></script>
-    <style>
-      .logo.vite:hover {
-        filter: drop-shadow(0 0 2em #747bff);
-      }
 
-      .logo.typescript:hover {
-        filter: drop-shadow(0 0 2em #2d79c7);
-      }
-    </style>
-  </head>
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="/src/styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Snotes Deck</title>
+  <script type="module" src="/src/main.ts" defer></script>
+  <style>
+    .logo.vite:hover {
+      filter: drop-shadow(0 0 2em #747bff);
+    }
 
-  <body>
-    <div class="container">
-      <h1>Snotes Deck Test</h1>
+    .logo.typescript:hover {
+      filter: drop-shadow(0 0 2em #2d79c7);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Snotes Deck Test</h1>
 
 
-      <form class="row" id="create-form">
-        <input id="create-input" placeholder="Note..." />
-        <input   id="create-tag" placeholder="Tag..." />
-        <button type="submit">Save</button>
-      </form>
+    <form class="row" id="create-form">
+      <input id="create-input" placeholder="Note..." />
+      <input id="create-tag" placeholder="Tag..." />
+      <button type="submit">Save</button>
+    </form>
 
-      <p id="create-msg"></p>
+    <p id="create-msg"></p>
 
-      <button class="row" id="show-notes-button">Refresh Notes</button>
-      <p style="white-space: pre-line" id="notes-list"></p>
+    <button class="row" id="show-notes-button">Refresh Notes</button>
+    <p style="white-space: pre-line" id="notes-list"></p>
+  </div>
+
+  <div class="sidebar">
+    <div class="note-sidebar-container" id="note-sidebar-container">
+      <!--
+          <span class="sidebar-note-id">1</span>
+          <span class="sidebar-note-content">Lorem ipsum dolor sit amet...</span>
+          <span class="sidebar-note-tag">Tag</span>
+        -->
     </div>
-  </body>
+</body>
+
 </html>

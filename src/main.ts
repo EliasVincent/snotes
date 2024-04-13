@@ -5,7 +5,7 @@ import { Note } from "./model";
 let notesMsgEl: HTMLElement | null;
 //let createMsgEl: HTMLElement | null;
 
-let createNoteContentEl: HTMLInputElement | null;
+let createNoteContentEl: HTMLTextAreaElement | null;
 let createNoteTagEl: HTMLInputElement | null;
 
 let noteSidebarContainerEl: HTMLDivElement | null;
@@ -25,9 +25,9 @@ async function createNote() {
 // read
 async function showNotes() {
   if (notesMsgEl) {
-    const notesJson: string = await invoke("get_notes_list");
-    const formattedJson = JSON.stringify(JSON.parse(notesJson), null, 2); // Indentation of 2 spaces
-    notesMsgEl.textContent = formattedJson;
+    //const notesJson: string = await invoke("get_notes_list");
+    //const formattedJson = JSON.stringify(JSON.parse(notesJson), null, 2); // Indentation of 2 spaces
+    //notesMsgEl.textContent = formattedJson;
 
     const array: Array<any> = await retrieveNotes();
 
@@ -82,7 +82,7 @@ window.addEventListener("DOMContentLoaded", () => {
   // createMsgEl = document.querySelector("#create-msg");
   notesMsgEl = document.querySelector("#notes-list");
   showNotes();
-  document.querySelector("#create-form")?.addEventListener("submit", (e) => {
+  document.querySelector("#save-button")?.addEventListener("click", (e) => {
     e.preventDefault();
     createNote();
     showNotes();
@@ -99,10 +99,14 @@ function fillNoteSidebar(noteArray: Note[]) {
   noteSidebarContainerEl = document.querySelector("#note-sidebar-container");
 
   if (noteSidebarContainerEl) {
+    // clear previously existing elements
+    noteSidebarContainerEl.innerHTML = "";
+
     noteArray.forEach((note) => {
       // Create HTML elements for each note
       const noteEl: HTMLDivElement = document.createElement('div');
       noteEl.classList.add('sidebar-note');
+      noteEl.addEventListener("click", () => handleSidebarNoteClick(note.id), false);
 
       const idSpan: HTMLSpanElement = document.createElement('span');
       idSpan.classList.add('sidebar-note-id');
@@ -110,7 +114,9 @@ function fillNoteSidebar(noteArray: Note[]) {
 
       const contentSpan: HTMLSpanElement = document.createElement('span');
       contentSpan.classList.add('sidebar-note-content');
-      contentSpan.textContent = note.content.substring(0, 20);
+
+      // Show ... when text is too long
+      contentSpan.textContent = note.content.length > 20 ? note.content.substring(0, 20) + "..." : note.content as string;
       contentSpan.title = note.content as string;
 
       const tagSpan: HTMLSpanElement = document.createElement('span');
@@ -128,4 +134,8 @@ function fillNoteSidebar(noteArray: Note[]) {
   }
 }
 
+
+function handleSidebarNoteClick(id: Number): any {
+  console.log("huh " + id);
+}
 

@@ -19,30 +19,33 @@
 </head>
 
 <body>
+  <div class="top-bar">
+    <h1>Snotes Deck</h1>
+    
+    <div id="button-row">
+      <button class="row" id="show-notes-button">Refresh Notes</button>
+      <button type="submit" id="save-button">Save</button>
+    </div>
+  </div>
   <div class="container">
-    <h1>Snotes Deck Test</h1>
-
-
-    <form class="row" id="create-form">
-      <input id="create-input" placeholder="Note..." />
+    <div class="sidebar">
+      <div class="note-sidebar-container" id="note-sidebar-container">
+        <!--
+            <span class="sidebar-note-id">1</span>
+            <span class="sidebar-note-content">Lorem ipsum dolor sit amet...</span>
+            <span class="sidebar-note-tag">Tag</span>
+          -->
+      </div>
+    </div>
+    <div class="editor">
       <input id="create-tag" placeholder="Tag..." />
-      <button type="submit">Save</button>
-    </form>
-
+      <textarea id="create-input" placeholder="Note..." ></textarea>
     <p id="create-msg"></p>
 
-    <button class="row" id="show-notes-button">Refresh Notes</button>
     <p style="white-space: pre-line" id="notes-list"></p>
+  
   </div>
 
-  <div class="sidebar">
-    <div class="note-sidebar-container" id="note-sidebar-container">
-      <!--
-          <span class="sidebar-note-id">1</span>
-          <span class="sidebar-note-content">Lorem ipsum dolor sit amet...</span>
-          <span class="sidebar-note-tag">Tag</span>
-        -->
-    </div>
 </body>
 
 </html>

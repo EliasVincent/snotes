@@ -10,7 +10,6 @@ pub struct Note {
     tag: String,
 }
 
-
 pub fn init_db() -> Result<()> {
     let home = home_dir().unwrap().join(".snotes.db");
     let connection = Connection::open(home)?;
@@ -64,19 +63,21 @@ pub fn show_notes(all: bool, tag: &str) -> Result<String, String> {
     }
 
     if !tag.is_empty() {
-        query = format!("SELECT * FROM notes WHERE tag IS '{}'", tag);
+        query = format!("SELECT * FROM notes WHERE tag IS '{tag}'");
     }
 
     let mut prepare = connection.prepare(&query).unwrap();
 
-    let notes = prepare.query_map([], |row| {
-        Ok(Note {
-            id: row.get(0)?,
-            content: row.get(1)?,
-            date: row.get(2)?,
-            tag: row.get(3)?,
+    let notes = prepare
+        .query_map([], |row| {
+            Ok(Note {
+                id: row.get(0)?,
+                content: row.get(1)?,
+                date: row.get(2)?,
+                tag: row.get(3)?,
+            })
         })
-    }).unwrap();
+        .unwrap();
 
     let mut json_array = Vec::new();
 
@@ -96,20 +97,32 @@ pub fn show_notes(all: bool, tag: &str) -> Result<String, String> {
     Ok(json_string)
 }
 
-pub fn delete_latest_note() -> Result<()> {
+pub fn delete_latest_note() -> Result<(), String> {
     let home = home_dir().unwrap().join(".snotes.db");
-    let connection = Connection::open(home)?;
+    let connection = Connection::open(home).map_err(|e| format!("Database Error: {e}"))?;
 
     let query = String::from("DELETE FROM NOTES WHERE nid = (SELECT MAX(nid) FROM notes)");
 
     match connection.execute(&query, []) {
-        Ok(v) => println!("DELETE OK {}", v),
-        Err(e) => println!("DELETE ERR {}", e),
+        Ok(v) => {
+            println!("DELETE OK {}", v);
+            Ok(())
+        }
+        Err(e) => Err(format!("Delete Error: {e}")),
     }
-
-    Ok(())
 }
 
+pub fn delete_specific_note(id: i32) -> Result<(), String> {
+    let home = home_dir().unwrap().join(".snotes.db");
+    let connection = Connection::open(home).map_err(|e| format!("Database Error: {e}"))?;
+
+    let query = "DELETE FROM notes WHERE nid = ?1";
+    match connection.execute(query, [id]) {
+        Ok(1) => Ok(()), // 1 row affected means the note was deleted successfully
+        Ok(_) => Err("No note with the provided ID found.".to_string()),
+        Err(e) => Err(format!("Delete Error: {e}")),
+    }
+}
 
 #[cfg(test)]
 mod tests {

@@ -12,7 +12,7 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
-  
+
 }
 
 #button-row {
@@ -90,11 +90,11 @@ button:active {
   background-color: #e8e8e8;
 }
 
-#create-tag{
+#create-tag {
   margin: 0.5em;
 }
 
-#create-input{
+#create-input {
   margin: 0.5em;
 
   height: 100%;
@@ -114,7 +114,8 @@ button:active {
 #create-input:focus {
   border-color: #cf66e9;
   box-shadow: 0 0 5px rgba(102, 175, 233, 0.6);
-  outline: none; /* Remove default focus outline */
+  outline: none;
+  /* Remove default focus outline */
 }
 
 input,
@@ -165,4 +166,30 @@ button {
   margin-left: 10px;
   padding: 2px 6px;
   border-radius: 4px;
+}
+
+/* CONTEXT MENU */
+
+.context-menu {
+  position: relative;
+}
+
+.menu {
+  display: none;
+  position: absolute;
+  z-index: 999;
+  border: 1px solid #ccc;
+  padding: 5px;
+}
+
+.menu button {
+  display: block;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.menu button:hover {
+  background-color: #770079;
 }

@@ -20,8 +20,11 @@
 
 <body>
   <div class="top-bar">
+    <div class="menu" id="contextMenu">
+      <button id="deleteButton">Delete</button>
+    </div>
     <h1>Snotes Deck</h1>
-    
+
     <div id="button-row">
       <button class="row" id="show-notes-button">Refresh Notes</button>
       <button type="submit" id="save-button">Save</button>
@@ -39,12 +42,15 @@
     </div>
     <div class="editor">
       <input id="create-tag" placeholder="Tag..." />
-      <textarea id="create-input" placeholder="Note..." ></textarea>
-    <p id="create-msg"></p>
+      <textarea id="create-input" placeholder="Note..."></textarea>
+      <p id="create-msg"></p>
 
-    <p style="white-space: pre-line" id="notes-list"></p>
-  
-  </div>
+      <p style="white-space: pre-line" id="notes-list"></p>
+
+    </div>
+
+
+
 
 </body>
 

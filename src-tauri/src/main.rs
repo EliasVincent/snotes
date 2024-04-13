@@ -11,8 +11,8 @@ fn greet(name: &str) -> String {
 
 #[tauri::command]
 fn get_notes_list() -> String {
-    let notes = show_notes(false, &String::new()).unwrap();
-    format!("{}", notes)
+    let notes = show_notes(false, "").unwrap();
+    notes.to_string()
 }
 
 #[tauri::command]
@@ -23,9 +23,16 @@ fn create_note(content: &str, tag: &str) -> bool {
     true
 }
 
+#[tauri::command]
+fn delete_specific_note(id: u32) -> bool {
+    println!("reched Delete");
+
+    libsnotes::delete_specific_note(id.try_into().unwrap()).is_ok()
+}
+
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet, get_notes_list, create_note])
+        .invoke_handler(tauri::generate_handler![greet, get_notes_list, create_note, delete_specific_note])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

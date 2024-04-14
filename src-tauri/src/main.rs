@@ -17,24 +17,24 @@ fn get_notes_list() -> String {
 }
 
 #[tauri::command]
-fn create_note(content: &str, tag: &str) -> bool {
-    println!("reached");
-    libsnotes::create_note(&content.to_string(), &tag.to_string()).unwrap();
+fn search_notes(query: &str) -> String {
+    let results = libsnotes::search_notes(query).unwrap();
+    results.to_string()
+}
 
+#[tauri::command]
+fn create_note(content: &str, tag: &str) -> bool {
+    libsnotes::create_note(&content.to_string(), &tag.to_string()).unwrap();
     true
 }
 
 #[tauri::command]
 fn delete_specific_note(id: u32) -> bool {
-    println!("reched Delete");
-
     libsnotes::delete_specific_note(id.try_into().unwrap()).is_ok()
 }
 
 #[tauri::command]
 fn update_specific_note(id: u32, content: &str, tag: &str) -> bool {
-    println!("update specific note");
-
     libsnotes::edit_specific_note(id.try_into().unwrap(), tag, content).is_ok()
 }
 
@@ -43,6 +43,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             greet,
             get_notes_list,
+            search_notes,
             create_note,
             delete_specific_note,
             update_specific_note

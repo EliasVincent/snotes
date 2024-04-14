@@ -13,6 +13,8 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
 
+  overflow-y: hidden;
+
 }
 
 #button-row {
@@ -31,7 +33,7 @@
   justify-content: space-between;
   text-align: center;
 
-  height: 80vh;
+  height: 90vh;
 }
 
 .editor {
@@ -42,6 +44,7 @@
 
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
 }
 
 .row {
@@ -104,7 +107,7 @@ button:active {
 
   padding: 10px;
 
-  border: 1px solid #ccc;
+  border: 1px solid #3b3b3b;
   border-radius: 5px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 
@@ -112,7 +115,9 @@ button:active {
 
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
   background-color: #252525;
-  color: #f0f0f0
+  color: #f0f0f0;
+
+  box-sizing: border-box;
 }
 
 #create-input:focus {
@@ -145,7 +150,7 @@ button {
 }
 
 .note-sidebar-container {
-  max-height: 100%;
+  max-height: 90%;
   overflow-y: scroll;
 }
 
@@ -202,6 +207,24 @@ button {
 .menu button:hover {
   background-color: #770079;
 }
+
+/* Searchbar */
+
+.searchbar-container {
+  margin: 0.5em;
+}
+
+#note-searchbar {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  outline: none;
+  font-size: 16px;
+}
+
+#note-searchbar::placeholder {}
 
 /* MISC */
 

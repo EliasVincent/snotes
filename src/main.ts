@@ -7,6 +7,7 @@ let notesMsgEl: HTMLElement | null;
 let createNoteContentEl: HTMLTextAreaElement | null;
 let createNoteTagEl: HTMLInputElement | null;
 
+let searchbarEl: HTMLInputElement | null;
 let noteSidebarContainerEl: HTMLDivElement | null;
 
 let noteArray: Note[] = []
@@ -46,13 +47,14 @@ async function saveNote() {
             content: createNoteContentEl.value,
             tag: createNoteTagEl.value
           });
-          clearEditor();
+          // do not clear the editor
+          //clearEditor();
         } else {
           console.error("No note is currently being edited");
         }
         break;
     }
-
+    showNotes();
   }
 }
 
@@ -83,10 +85,15 @@ async function retrieveNotes(): Promise<Array<JSON>> {
   return notesJson;
 }
 
+/**
+ * Handle even listeners on load.
+ * This does not handle listeners for generated fields like
+ * the Notes in the sidebar.
+ */
 window.addEventListener("DOMContentLoaded", () => {
   createNoteContentEl = document.querySelector("#create-input");
   createNoteTagEl = document.querySelector("#create-tag");
-  // createMsgEl = document.querySelector("#create-msg");
+  searchbarEl = document.querySelector("#note-searchbar");
   notesMsgEl = document.querySelector("#notes-list");
   showNotes();
   document.querySelector("#save-button")?.addEventListener("click", (e) => {
@@ -98,10 +105,38 @@ window.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
     clearEditor();
     showNotes();
-  })
+  });
   document.querySelector("#show-notes-button")?.addEventListener("click", (e) => {
     e.preventDefault();
     showNotes();
+  });
+
+  // Pressing TAB should insert intends in the editor.
+  // This could potentially cause issues later...
+  document.querySelector("#create-input")?.addEventListener("keydown", (event: Event) => {
+    const e = event as KeyboardEvent;
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const target = e.target as HTMLTextAreaElement;
+      const start = target.selectionStart;
+      const end = target.selectionEnd;
+
+      const newValue = target.value.substring(0, start) +
+        "\t" + target.value.substring(end);
+
+      target.value = newValue;
+
+      target.setSelectionRange(start + 1, start + 1);
+    }
+  });
+
+  // searchbar event listener
+
+  document.querySelector("#note-searchbar")?.addEventListener("input", (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    const input = target.value;
+
+    searchNote(input);
   })
 
   refreshContextMenuElements();
@@ -274,3 +309,68 @@ function clearEditor() {
     editorState = EditorState.NEW;
   }
 }
+
+// Listen for global key presses
+document.addEventListener('keydown', (e) => handleKeyboardShortcuts(e));
+
+/**
+ * Handle global keyboard shortcuts like save, search, new
+ */
+function handleKeyboardShortcuts(event: KeyboardEvent) {
+  // save
+  if (event.ctrlKey && event.key === 's') {
+    event.preventDefault();
+    saveNote();
+  }
+  // new
+  if (event.ctrlKey && event.key === 'n') {
+    event.preventDefault();
+    clearEditor();
+  }
+  // refresh
+  if (event.ctrlKey && event.key === 'r') {
+    event.preventDefault();
+    showNotes();
+  }
+  // focus searchbox
+  if (event.ctrlKey && event.key === 'f') {
+    event.preventDefault();
+    if (searchbarEl) {
+      searchbarEl.focus();
+    } else {
+      console.error("failed to focus on searchbar");
+    }
+  }
+  // open by id
+  // quick switch note 1-9
+}
+
+/**
+ * Searches for note and displays the results accordingly
+ */
+async function searchNote(input: string) {
+  if (notesMsgEl) {
+    const array: Array<any> = await getSearchResults(input);
+
+    noteArray = array.map((jsonObj) => ({
+      id: jsonObj.id,
+      content: jsonObj.content,
+      date: jsonObj.date,
+      tag: jsonObj.tag
+    }));
+
+    console.log(noteArray[0])
+
+    fillNoteSidebar(noteArray);
+  }
+}
+
+async function getSearchResults(input: string): Promise<Array<JSON>> {
+  const resultsString: string = await invoke("search_notes", {
+    query: input
+  });
+  const resultsJson = JSON.parse(resultsString);
+  console.log(resultsJson);
+  return resultsJson;
+}
+

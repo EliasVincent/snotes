@@ -9,9 +9,10 @@ fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
 
+/// get ALL notes in the Database. If you don't want this, set show_notes(false)
 #[tauri::command]
 fn get_notes_list() -> String {
-    let notes = show_notes(false, "").unwrap();
+    let notes = show_notes(true, "").unwrap();
     notes.to_string()
 }
 
@@ -30,9 +31,22 @@ fn delete_specific_note(id: u32) -> bool {
     libsnotes::delete_specific_note(id.try_into().unwrap()).is_ok()
 }
 
+#[tauri::command]
+fn update_specific_note(id: u32, content: &str, tag: &str) -> bool {
+    println!("update specific note");
+
+    libsnotes::edit_specific_note(id.try_into().unwrap(), tag, content).is_ok()
+}
+
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet, get_notes_list, create_note, delete_specific_note])
+        .invoke_handler(tauri::generate_handler![
+            greet,
+            get_notes_list,
+            create_note,
+            delete_specific_note,
+            update_specific_note
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

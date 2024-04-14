@@ -124,6 +124,18 @@ pub fn delete_specific_note(id: i32) -> Result<(), String> {
     }
 }
 
+pub fn edit_specific_note(id: i32, tag: &str, content: &str) -> Result<(), String> {
+    let home = home_dir().unwrap().join(".snotes.db");
+    let connection = Connection::open(home).map_err(|e| format!("Database Error: {}", e))?;
+
+    let query = "UPDATE notes SET tag = ?1, content = ?2 WHERE nid = ?3";
+    match connection.execute(query, [&tag, &content, &id.to_string().as_str()]) {
+        Ok(1) => Ok(()), // 1 row affected means the note was updated successfully
+        Ok(_) => Err("No note with the provided ID found.".to_string()),
+        Err(e) => Err(format!("Edit Error: {}", e)),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

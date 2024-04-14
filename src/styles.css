@@ -35,7 +35,7 @@
 }
 
 .editor {
-  background-color: #24c8db;
+  background-color: #41005a;
   margin-left: 1em;
   width: 100%;
   height: 100%;
@@ -109,6 +109,10 @@ button:active {
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 
   resize: none;
+
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  background-color: #252525;
+  color: #f0f0f0
 }
 
 #create-input:focus {
@@ -138,6 +142,11 @@ button {
   background-color: #0f0f0f;
   width: 35%;
   padding: 20px;
+}
+
+.note-sidebar-container {
+  max-height: 100%;
+  overflow-y: scroll;
 }
 
 .sidebar-note {
@@ -192,4 +201,28 @@ button {
 
 .menu button:hover {
   background-color: #770079;
+}
+
+/* MISC */
+
+/* Fancier Scrollbar */
+
+/* Hide scrollbar track */
+::-webkit-scrollbar {
+  width: 4px;
+  visibility: hidden;
+}
+
+::-webkit-scrollbar:hover {
+  visibility: visible;
+  /* Show the scrollbar when hovered */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }

@@ -23,26 +23,29 @@
     <div class="menu" id="contextMenu">
       <button id="deleteButton">Delete</button>
     </div>
-    <h1>Snotes Deck</h1>
+    <h1>Maid Notes</h1>
 
     <div id="button-row">
       <button class="row" id="show-notes-button">Refresh Notes</button>
       <button type="submit" id="save-button">Save</button>
+      <button class="row" id="new-button">New</button>
     </div>
   </div>
   <div class="container">
     <div class="sidebar">
       <div class="note-sidebar-container" id="note-sidebar-container">
-        <!--
+        <!-- This is how the generated notes will look like:
+          <div class="sidebar-note rightclick-element">
             <span class="sidebar-note-id">1</span>
             <span class="sidebar-note-content">Lorem ipsum dolor sit amet...</span>
             <span class="sidebar-note-tag">Tag</span>
+          </div>
           -->
       </div>
     </div>
     <div class="editor">
       <input id="create-tag" placeholder="Tag..." />
-      <textarea id="create-input" placeholder="Note..."></textarea>
+      <textarea id="create-input" placeholder="Type your note here..."></textarea>
       <p id="create-msg"></p>
 
       <p style="white-space: pre-line" id="notes-list"></p>

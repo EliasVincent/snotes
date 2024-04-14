@@ -11,19 +11,54 @@ let noteSidebarContainerEl: HTMLDivElement | null;
 
 let noteArray: Note[] = []
 
-// create
-async function createNote() {
-  console.log("reached ssssjs")
+/** ID of current note, if we're editing an existing note */
+let currentNoteId: number | null = null;
+
+
+enum EditorState {
+  NEW,
+  EDITING
+}
+
+/** Editor always initializes in the NEW state */
+let editorState = EditorState.NEW
+
+/**
+ * Saves the note.
+ * Or updates an existing note depending on editor state
+ */
+async function saveNote() {
   if (createNoteContentEl && createNoteTagEl) {
-    console.log("reached js")
-    await invoke("create_note", {
-      content: createNoteContentEl.value,
-      tag: createNoteTagEl.value
-    });
+    switch (editorState) {
+      case EditorState.NEW:
+        console.log("creating new note..")
+        await invoke("create_note", {
+          content: createNoteContentEl.value,
+          tag: createNoteTagEl.value
+        });
+        clearEditor();
+        break;
+      case EditorState.EDITING:
+        console.log("updating existing note..")
+        if (currentNoteId !== null) {
+          await invoke("update_specific_note", {
+            id: currentNoteId,
+            content: createNoteContentEl.value,
+            tag: createNoteTagEl.value
+          });
+          clearEditor();
+        } else {
+          console.error("No note is currently being edited");
+        }
+        break;
+    }
+
   }
 }
 
-// read
+/**
+ * Retrieve Notes from DB and fill the sidebar with them
+ */
 async function showNotes() {
   if (notesMsgEl) {
     const array: Array<any> = await retrieveNotes();
@@ -56,9 +91,14 @@ window.addEventListener("DOMContentLoaded", () => {
   showNotes();
   document.querySelector("#save-button")?.addEventListener("click", (e) => {
     e.preventDefault();
-    createNote();
+    saveNote();
     showNotes();
   });
+  document.querySelector("#new-button")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    clearEditor();
+    showNotes();
+  })
   document.querySelector("#show-notes-button")?.addEventListener("click", (e) => {
     e.preventDefault();
     showNotes();
@@ -94,14 +134,13 @@ function refreshContextMenuElements() {
         let posY = mouseY + menuHeight > viewportHeight ? mouseY - menuHeight : mouseY;
 
 
-        contextMenu.style.display = 'block'; // Show the custom context menu
+        contextMenu.style.display = 'block';
         contextMenu.style.left = `${posX}px`;
         contextMenu.style.top = `${posY}px`;
 
         const noteIdElement = element.querySelector('.sidebar-note-id');
         if (noteIdElement) {
           const noteIdStr = noteIdElement.textContent;
-          //console.log('Right-clicked note id:', noteId);
           if (noteIdStr) {
             const noteId: Number = parseInt(noteIdStr);
             showNoteSidebarContextMenu(noteId);
@@ -177,8 +216,7 @@ function handleSidebarNoteClick(id: Number): any {
     });
 
     if (n) {
-      createNoteContentEl.value = n.content as string;
-      createNoteTagEl.value = n.tag as string;
+      openNote(n);
     } else {
       // don't destory currently editing note if this fails
       console.error("Error fetching note");
@@ -211,3 +249,28 @@ function showNoteSidebarContextMenu(noteId: Number) {
   }
 }
 
+/**
+ * When a note is opened, the editor will switch to the EDITING state and get filled with
+ * Note content
+ */
+function openNote(note: Note) {
+  if (createNoteContentEl && createNoteTagEl) {
+    createNoteContentEl.value = note.content as string;
+    createNoteTagEl.value = note.tag as string;
+    currentNoteId = note.id as number;
+    // switch state
+    editorState = EditorState.EDITING;
+  }
+}
+
+/**
+ * When new note is clicked, clear the editor content and switch Editor state
+ */
+function clearEditor() {
+  if (createNoteContentEl && createNoteTagEl) {
+    createNoteContentEl.value = "";
+    createNoteTagEl.value = "";
+    currentNoteId = null;
+    editorState = EditorState.NEW;
+  }
+}

@@ -13,6 +13,8 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
 
+  margin-top: 0.5em;
+
   overflow-y: hidden;
 
 }

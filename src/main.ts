@@ -9,6 +9,7 @@ let createNoteTagEl: HTMLInputElement | null;
 
 let searchbarEl: HTMLInputElement | null;
 let noteSidebarContainerEl: HTMLDivElement | null;
+let searchbarContents = "";
 
 let noteArray: Note[] = []
 
@@ -21,8 +22,14 @@ enum EditorState {
   EDITING
 }
 
+enum SearchState {
+  EMPTY,
+  RESULTS
+}
+
 /** Editor always initializes in the NEW state */
-let editorState = EditorState.NEW
+let editorState = EditorState.NEW;
+let searchState = SearchState.EMPTY;
 
 /**
  * Saves the note.
@@ -59,22 +66,28 @@ async function saveNote() {
 }
 
 /**
- * Retrieve Notes from DB and fill the sidebar with them
+ * Retrieve Notes from DB and fill the sidebar with them.
+ * 
+ * If there's something in the searchbar, do not clear that.
  */
 async function showNotes() {
   if (notesMsgEl) {
-    const array: Array<any> = await retrieveNotes();
+    if (searchState == SearchState.EMPTY) {
+      const array: Array<any> = await retrieveNotes();
 
-    noteArray = array.map((jsonObj) => ({
-      id: jsonObj.id,
-      content: jsonObj.content,
-      date: jsonObj.date,
-      tag: jsonObj.tag
-    }));
+      noteArray = array.map((jsonObj) => ({
+        id: jsonObj.id,
+        content: jsonObj.content,
+        date: jsonObj.date,
+        tag: jsonObj.tag
+      }));
 
-    console.log(noteArray[0])
+      console.log(noteArray[0])
 
-    fillNoteSidebar(noteArray);
+      fillNoteSidebar(noteArray);
+    } else {
+      searchNote(searchbarContents);
+    }
   }
 
 }
@@ -135,6 +148,14 @@ window.addEventListener("DOMContentLoaded", () => {
   document.querySelector("#note-searchbar")?.addEventListener("input", (event: Event) => {
     const target = event.target as HTMLInputElement;
     const input = target.value;
+
+    if (target.value == "") {
+      searchState = SearchState.EMPTY;
+    } else {
+      searchState = SearchState.RESULTS;
+    }
+
+    searchbarContents = input;
 
     searchNote(input);
   })

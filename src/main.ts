@@ -44,7 +44,8 @@ async function saveNote() {
           content: createNoteContentEl.value,
           tag: createNoteTagEl.value
         });
-        clearEditor();
+        //clearEditor();
+        refreshSidebarAndOpenLatestNote();
         break;
       case EditorState.EDITING:
         console.log("updating existing note..")
@@ -82,8 +83,6 @@ async function showNotes() {
         tag: jsonObj.tag
       }));
 
-      console.log(noteArray[0])
-
       fillNoteSidebar(noteArray);
     } else {
       searchNote(searchbarContents);
@@ -94,7 +93,7 @@ async function showNotes() {
 async function retrieveNotes(): Promise<Array<JSON>> {
   const notesString: string = await invoke("get_notes_list");
   const notesJson = JSON.parse(notesString);
-  console.log(notesJson);
+
   return notesJson;
 }
 
@@ -255,7 +254,7 @@ function fillNoteSidebar(noteArray: Note[]) {
 
 
 function handleSidebarNoteClick(id: Number): any {
-  console.log("huh " + id);
+  console.log("clicked note " + id);
   if (createNoteContentEl && createNoteTagEl) {
     // search for note
     let n: Note = {
@@ -380,8 +379,6 @@ async function searchNote(input: string) {
       tag: jsonObj.tag
     }));
 
-    console.log(noteArray[0])
-
     fillNoteSidebar(noteArray);
   }
 }
@@ -391,7 +388,28 @@ async function getSearchResults(input: string): Promise<Array<JSON>> {
     query: input
   });
   const resultsJson = JSON.parse(resultsString);
-  console.log(resultsJson);
   return resultsJson;
+}
+
+/**
+ * When we save a new note, we want to keep that note
+ * in the editor, so we switch out the New note for
+ * Editing an existing note (the latest one, the one
+ * we just created)
+ */
+async function refreshSidebarAndOpenLatestNote() {
+  showNotes();
+
+  const noteString = await invoke("get_latest_note");
+  const noteJson = JSON.parse(noteString as string);
+
+  const latestNote: Note = {
+    id: noteJson[0].id,
+    content: noteJson[0].content,
+    date: noteJson[0].date,
+    tag: noteJson[0].tag
+  }
+
+  openNote(latestNote);
 }
 

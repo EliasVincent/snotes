@@ -146,7 +146,9 @@ pub fn search_notes(query: &str) -> Result<String, String> {
         query, query
     );
 
-    let mut prepare = connection.prepare(&query).map_err(|e| format!("Query Error: {}", e))?;
+    let mut prepare = connection
+        .prepare(&query)
+        .map_err(|e| format!("Query Error: {}", e))?;
 
     let notes = prepare
         .query_map([], |row| {
@@ -172,11 +174,53 @@ pub fn search_notes(query: &str) -> Result<String, String> {
         json_array.push(note_json);
     }
 
-    let json_string = serde_json::to_string(&json_array).map_err(|e| format!("JSON Error: {}", e))?;
+    let json_string =
+        serde_json::to_string(&json_array).map_err(|e| format!("JSON Error: {}", e))?;
 
     Ok(json_string)
 }
 
+/// get latest note
+/// Returns a json array string of size 1
+pub fn get_latest_note() -> Result<String, String> {
+    let home = home_dir().unwrap().join(".snotes.db");
+    let connection = Connection::open(home).map_err(|e| format!("Database Error: {}", e))?;
+
+    let query = "SELECT * FROM notes WHERE ROWID IN (SELECT max(ROWID) FROM notes);
+    ".to_string();
+    let mut prepare = connection
+        .prepare(&query)
+        .map_err(|e| format!("Query Error: {}", e))?;
+
+    let notes = prepare
+        .query_map([], |row| {
+            Ok(Note {
+                id: row.get(0)?,
+                content: row.get(1)?,
+                date: row.get(2)?,
+                tag: row.get(3)?,
+            })
+        })
+        .map_err(|e| format!("Mapping Error: {}", e))?;
+
+    let mut json_array = Vec::new();
+
+    for note in notes {
+        let unwrapped = note.map_err(|e| format!("Note Error: {}", e))?;
+        let note_json = json!({
+            "id": unwrapped.id,
+            "date": unwrapped.date,
+            "content": unwrapped.content,
+            "tag": unwrapped.tag
+        });
+        json_array.push(note_json);
+    }
+
+    let json_string =
+        serde_json::to_string(&json_array).map_err(|e| format!("JSON Error: {}", e))?;
+    println!("{}", json_string);
+    Ok(json_string)
+}
 
 #[cfg(test)]
 mod tests {

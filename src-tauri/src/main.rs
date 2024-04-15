@@ -17,6 +17,12 @@ fn get_notes_list() -> String {
 }
 
 #[tauri::command]
+fn get_latest_note() -> String {
+    let note = libsnotes::get_latest_note().unwrap();
+    note.to_string()
+}
+
+#[tauri::command]
 fn search_notes(query: &str) -> String {
     let results = libsnotes::search_notes(query).unwrap();
     results.to_string()
@@ -43,6 +49,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             greet,
             get_notes_list,
+            get_latest_note,
             search_notes,
             create_note,
             delete_specific_note,

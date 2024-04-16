@@ -394,7 +394,7 @@ async function searchNote(input: string) {
       tag: jsonObj.tag
     }));
 
-    fillNoteSidebar(noteArray);
+    fillNoteSidebar(noteArray, reversed);
   }
 }
 

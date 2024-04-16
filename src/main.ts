@@ -19,6 +19,9 @@ let currentNoteId: number | null = null;
 /** reverse the order of note by id in the sidebar */
 let reversed = true;
 
+let typingTimer: number | null = null;
+const AUTOSAVE_DELAY = 5000;
+
 
 enum EditorState {
   NEW,
@@ -104,6 +107,7 @@ async function retrieveNotes(): Promise<Array<JSON>> {
  * Handle even listeners on load.
  * This does not handle listeners for generated fields like
  * the Notes in the sidebar.
+ * TODO: consistency
  */
 window.addEventListener("DOMContentLoaded", () => {
   createNoteContentEl = document.querySelector("#create-input");
@@ -171,6 +175,16 @@ window.addEventListener("DOMContentLoaded", () => {
       toggleReverse(target.checked);
     })
   }
+
+  // auto-save timer
+  createNoteContentEl?.addEventListener("keyup", () => {
+    if (editorState === EditorState.EDITING) {
+      if (typingTimer) {
+        clearTimeout(typingTimer);
+      }
+      typingTimer = window.setTimeout(() => saveNote(), AUTOSAVE_DELAY);
+    }
+  });
 
   refreshContextMenuElements();
 });

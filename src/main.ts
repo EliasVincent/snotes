@@ -9,12 +9,15 @@ let createNoteTagEl: HTMLInputElement | null;
 
 let searchbarEl: HTMLInputElement | null;
 let noteSidebarContainerEl: HTMLDivElement | null;
+let noteSidebarReverseCheckboxEl: HTMLInputElement | null;
 let searchbarContents = "";
 
 let noteArray: Note[] = []
 
 /** ID of current note, if we're editing an existing note */
 let currentNoteId: number | null = null;
+/** reverse the order of note by id in the sidebar */
+let reversed = true;
 
 
 enum EditorState {
@@ -83,7 +86,7 @@ async function showNotes() {
         tag: jsonObj.tag
       }));
 
-      fillNoteSidebar(noteArray);
+      fillNoteSidebar(noteArray, reversed);
     } else {
       searchNote(searchbarContents);
     }
@@ -159,6 +162,16 @@ window.addEventListener("DOMContentLoaded", () => {
     searchNote(input);
   })
 
+  // sidebar reverse toggle
+  noteSidebarReverseCheckboxEl = document.querySelector('#reverse-toggle');
+  if (noteSidebarReverseCheckboxEl) {
+    console.log(noteSidebarReverseCheckboxEl.value);
+    noteSidebarReverseCheckboxEl.addEventListener("click", (e: Event) => {
+      const target = e.target as HTMLInputElement
+      toggleReverse(target.checked);
+    })
+  }
+
   refreshContextMenuElements();
 });
 
@@ -209,13 +222,15 @@ function refreshContextMenuElements() {
   }
 }
 
-function fillNoteSidebar(noteArray: Note[]) {
+function fillNoteSidebar(noteArray: Note[], reverse: boolean) {
 
   noteSidebarContainerEl = document.querySelector("#note-sidebar-container");
 
   if (noteSidebarContainerEl) {
     // clear previously existing elements
     noteSidebarContainerEl.innerHTML = "";
+
+    reverse ? noteArray.reverse() : noteArray;
 
     noteArray.forEach((note) => {
       // Create HTML elements for each note
@@ -413,3 +428,7 @@ async function refreshSidebarAndOpenLatestNote() {
   openNote(latestNote);
 }
 
+function toggleReverse(val: boolean) {
+  reversed = val;
+  showNotes();
+}

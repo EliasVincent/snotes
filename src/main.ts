@@ -18,6 +18,7 @@ let noteArray: Note[] = []
 let currentNoteId: number | null = null;
 /** reverse the order of note by id in the sidebar */
 let reversed = true;
+let idModalActive = false;
 
 let typingTimer: number | null = null;
 const AUTOSAVE_DELAY = 5000;
@@ -390,7 +391,47 @@ function handleKeyboardShortcuts(event: KeyboardEvent) {
       console.error("failed to focus on searchbar");
     }
   }
-  // open by id
+  // open by id: open modal
+  if (event.ctrlKey && event.key === 't') {
+    event.preventDefault();
+    const modalBg = document.getElementById("id-modal-bg");
+    const modal = document.getElementById("id-modal-container");
+    const idSearchBar = document.getElementById("id-search")
+    if (modalBg && modal && idSearchBar) {
+      modalBg.style.display = "block";
+      modal.style.display = "block";
+      idSearchBar.focus();
+      (idSearchBar as HTMLInputElement).value = "";
+      idModalActive = true;
+
+      modalBg.addEventListener("click", () => {
+        modal.style.display = "none";
+        modalBg.style.display = "none";
+        idModalActive = false;
+      })
+
+      idSearchBar.addEventListener("keydown", async (event: KeyboardEvent) => {
+        if (event.key === "Enter" && idModalActive) {
+          let value = (idSearchBar as HTMLInputElement).value;
+          console.log("value: " + value);
+          if (await openNoteById(value)) {
+            modal.style.display = "none";
+            modalBg.style.display = "none";
+            idModalActive = false;
+          } else {
+            (idSearchBar as HTMLInputElement).value = "";
+            (idSearchBar as HTMLInputElement).placeholder = "no Note found for ID";
+          }
+        }
+        if (event.key === "Escape" && idModalActive) {
+          modal.style.display = "none";
+          modalBg.style.display = "none";
+          idModalActive = false;
+        }
+      });
+
+    } else { console.error("failed to get modal"); }
+  }
   // quick switch note 1-9
 }
 
@@ -445,4 +486,31 @@ async function refreshSidebarAndOpenLatestNote() {
 function toggleReverse(val: boolean) {
   reversed = val;
   showNotes();
+}
+
+async function openNoteById(value: string): Promise<boolean> {
+  const id: Number | null = parseInt(value);
+  if (id) {
+    const noteString = await invoke("get_note_by_id", {
+      id: id
+    });
+    console.log("id called: " + id)
+    console.log("note string: " + noteString)
+    const noteJson = JSON.parse(noteString as string);
+
+    if (noteJson.length == 0) {
+      return false;
+    }
+
+    const foundNote: Note = {
+      id: noteJson[0].id,
+      content: noteJson[0].content,
+      date: noteJson[0].date,
+      tag: noteJson[0].tag
+    }
+
+    openNote(foundNote);
+    return true;
+  }
+  return false;
 }

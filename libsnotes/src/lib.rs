@@ -142,8 +142,8 @@ pub fn search_notes(query: &str) -> Result<String, String> {
     let connection = Connection::open(home).map_err(|e| format!("Database Error: {}", e))?;
 
     let query = format!(
-        "SELECT * FROM notes WHERE content LIKE '%{}%' OR tag LIKE '%{}%'",
-        query, query
+        "SELECT * FROM notes WHERE nid LIKE '%{}%' OR content LIKE '%{}%' OR tag LIKE '%{}%'",
+        query, query, query
     );
 
     let mut prepare = connection
@@ -187,7 +187,47 @@ pub fn get_latest_note() -> Result<String, String> {
     let connection = Connection::open(home).map_err(|e| format!("Database Error: {}", e))?;
 
     let query = "SELECT * FROM notes WHERE ROWID IN (SELECT max(ROWID) FROM notes);
-    ".to_string();
+    "
+    .to_string();
+    let mut prepare = connection
+        .prepare(&query)
+        .map_err(|e| format!("Query Error: {}", e))?;
+
+    let notes = prepare
+        .query_map([], |row| {
+            Ok(Note {
+                id: row.get(0)?,
+                content: row.get(1)?,
+                date: row.get(2)?,
+                tag: row.get(3)?,
+            })
+        })
+        .map_err(|e| format!("Mapping Error: {}", e))?;
+
+    let mut json_array = Vec::new();
+
+    for note in notes {
+        let unwrapped = note.map_err(|e| format!("Note Error: {}", e))?;
+        let note_json = json!({
+            "id": unwrapped.id,
+            "date": unwrapped.date,
+            "content": unwrapped.content,
+            "tag": unwrapped.tag
+        });
+        json_array.push(note_json);
+    }
+
+    let json_string =
+        serde_json::to_string(&json_array).map_err(|e| format!("JSON Error: {}", e))?;
+    println!("{}", json_string);
+    Ok(json_string)
+}
+
+pub fn get_note_by_id(id: u32) -> Result<String, String> {
+    let home = home_dir().unwrap().join(".snotes.db");
+    let connection = Connection::open(home).map_err(|e| format!("Database Error: {}", e))?;
+
+    let query = format!("SELECT * FROM notes WHERE nid IS {};", id.to_string());
     let mut prepare = connection
         .prepare(&query)
         .map_err(|e| format!("Query Error: {}", e))?;
@@ -230,5 +270,13 @@ mod tests {
     fn it_works() {
         let result = init_db();
         assert_eq!(result, Ok(()));
+    }
+
+    #[test]
+    #[ignore = "debug thing"]
+    fn test_id_10() {
+        let result = get_note_by_id(10).unwrap();
+        println!("{}", result);
+        assert!(true)
     }
 }

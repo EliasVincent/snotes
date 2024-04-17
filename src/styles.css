@@ -228,6 +228,36 @@ button {
 
 #note-searchbar::placeholder {}
 
+/* Open by ID Modal */
+
+
+#id-modal-bg {
+  display: none;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.534);
+  filter: grayscale();
+  /* Semi-transparent black */
+  z-index: 1;
+  /* Ensure it's behind the modal */
+}
+
+
+#id-modal-container {
+  display: none;
+
+  position: fixed;
+
+  margin-top: 20%;
+  margin-left: 50%;
+
+  z-index: 3;
+}
+
 /* MISC */
 
 /* Fancier Scrollbar */

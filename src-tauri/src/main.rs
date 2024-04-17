@@ -23,6 +23,12 @@ fn get_latest_note() -> String {
 }
 
 #[tauri::command]
+fn get_note_by_id(id: u32) -> String {
+    let result = libsnotes::get_note_by_id(id).unwrap();
+    result
+}
+
+#[tauri::command]
 fn search_notes(query: &str) -> String {
     let results = libsnotes::search_notes(query).unwrap();
     results.to_string()
@@ -50,6 +56,7 @@ fn main() {
             greet,
             get_notes_list,
             get_latest_note,
+            get_note_by_id,
             search_notes,
             create_note,
             delete_specific_note,

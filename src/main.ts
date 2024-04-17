@@ -41,6 +41,7 @@ let searchState = SearchState.EMPTY;
 /**
  * Saves the note.
  * Or updates an existing note depending on editor state
+ * TODO: save note when switching to prevent data loss
  */
 async function saveNote() {
   if (createNoteContentEl && createNoteTagEl) {
@@ -345,6 +346,7 @@ function openNote(note: Note) {
     currentNoteId = note.id as number;
     // switch state
     editorState = EditorState.EDITING;
+    createNoteContentEl.focus();
   }
 }
 

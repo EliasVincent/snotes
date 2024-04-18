@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/tauri";
-import { Note } from "./model";
+import { Note, Settings } from "./model";
 
 
 let notesMsgEl: HTMLElement | null;
@@ -37,6 +37,8 @@ enum SearchState {
 /** Editor always initializes in the NEW state */
 let editorState = EditorState.NEW;
 let searchState = SearchState.EMPTY;
+
+let settings: Settings | null = null;
 
 /**
  * Saves the note.
@@ -111,7 +113,11 @@ async function retrieveNotes(): Promise<Array<JSON>> {
  * the Notes in the sidebar.
  * TODO: consistency
  */
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("DOMContentLoaded", async () => {
+  // settings
+  settings = await loadSettings();
+
+  console.log("ACTUAL SETTINGS IN FRONTEND: ", settings.fontSize)
   createNoteContentEl = document.querySelector("#create-input");
   createNoteTagEl = document.querySelector("#create-tag");
   searchbarEl = document.querySelector("#note-searchbar");
@@ -162,7 +168,6 @@ window.addEventListener("DOMContentLoaded", () => {
     } else {
       searchState = SearchState.RESULTS;
     }
-
     searchbarContents = input;
 
     searchNote(input);
@@ -188,8 +193,34 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  if (createNoteContentEl) {
+    createNoteContentEl.style.fontSize = settings.fontSize
+  }
+
   refreshContextMenuElements();
 });
+
+async function loadSettings(): Promise<Settings> {
+  const defaultSettings: Settings = {
+    fontSize: "16px"
+  };
+
+  try {
+    let loadedSettingsString: string = await invoke("load_settings");
+    console.log(loadedSettingsString);
+
+    if (loadedSettingsString === "") {
+      await invoke("init_settings");
+      return defaultSettings;
+    }
+
+    const loadedSettings = JSON.parse(loadedSettingsString);
+    return loadedSettings as Settings;
+  } catch (error) {
+    console.error("An error occurred while loading settings:", error);
+    return defaultSettings;
+  }
+}
 
 /**
  * We need to add new event listeners every time we refresh the note list
@@ -302,6 +333,12 @@ function handleSidebarNoteClick(id: Number): any {
     });
 
     if (n) {
+      // save if there's something in the editor currently 
+      // before we open the new note to prevent data loss
+      if (createNoteContentEl.value != "") {
+        saveNote();
+      }
+
       openNote(n);
     } else {
       // don't destory currently editing note if this fails

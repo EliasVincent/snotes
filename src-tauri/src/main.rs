@@ -1,6 +1,9 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use std::fs;
+
+use home::home_dir;
 use libsnotes::show_notes;
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -50,6 +53,43 @@ fn update_specific_note(id: u32, content: &str, tag: &str) -> bool {
     libsnotes::edit_specific_note(id.try_into().unwrap(), tag, content).is_ok()
 }
 
+#[tauri::command]
+fn load_settings() -> String {
+    let settings_string = fs::read_to_string(
+        home_dir()
+            .unwrap()
+            .join(".snotes-data/snotes-settings.json"),
+    )
+    .unwrap_or(String::from(""))
+    .parse()
+    .unwrap_or(String::from(""));
+    dbg!(&settings_string);
+    settings_string
+}
+
+#[tauri::command]
+fn init_settings() {
+    let dir = home_dir().unwrap().join(".snotes-data");
+    dbg!(&dir);
+    if !dir.exists() {
+        fs::create_dir(dir).unwrap();
+    }
+
+    let settings = r#"
+    {
+        "fontSize": "16px"
+    }
+    "#;
+
+    fs::write(
+        home_dir()
+            .unwrap()
+            .join(".snotes-data/snotes-settings.json"),
+        settings,
+    )
+    .unwrap();
+}
+
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
@@ -60,7 +100,9 @@ fn main() {
             search_notes,
             create_note,
             delete_specific_note,
-            update_specific_note
+            update_specific_note,
+            init_settings,
+            load_settings
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

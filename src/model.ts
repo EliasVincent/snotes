@@ -4,3 +4,7 @@ export type Note = {
     date: String,
     tag: String;
 };
+
+export type Settings = {
+    fontSize: string
+};

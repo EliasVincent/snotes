@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/tauri";
 import { Note, Settings } from "./model";
-
+import { createWorker } from 'tesseract.js';
 
 let notesMsgEl: HTMLElement | null;
 
@@ -196,6 +196,33 @@ window.addEventListener("DOMContentLoaded", async () => {
   if (createNoteContentEl) {
     createNoteContentEl.style.fontSize = settings.fontSize
   }
+
+  // OCR
+  const uploadOcrImageButtonEl = document.getElementById('image-button') as HTMLButtonElement;
+  const ocrFileInputEl = document.getElementById('fileInput') as HTMLInputElement;
+
+  uploadOcrImageButtonEl.addEventListener('click', () => {
+    ocrFileInputEl.click(); // Simulate click on the file input
+  });
+
+  ocrFileInputEl.addEventListener('change', (event) => {
+    const files = (event.target as HTMLInputElement).files;
+    if (files) {
+      console.log('Selected file:', files[0].name);
+      ocrFileInputEl.src = URL.createObjectURL(files[0]);
+      (async () => {
+        // TODO: change ocr language in settings
+        const worker = await createWorker('eng');
+        const ret = await worker.recognize(files[0]);
+        console.log(ret.data.text);
+        if (createNoteContentEl) [
+          createNoteContentEl.value += ret.data.text
+        ]
+        await worker.terminate();
+      })();
+    }
+  });
+
 
   refreshContextMenuElements();
 });

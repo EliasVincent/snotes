@@ -6,10 +6,10 @@ use std::fs;
 use home::home_dir;
 use libsnotes::show_notes;
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
+fn init_db() {
+    libsnotes::init_db().unwrap();
+    println!("initted")
 }
 
 /// get ALL notes in the Database. If you don't want this, set show_notes(false)
@@ -27,8 +27,7 @@ fn get_latest_note() -> String {
 
 #[tauri::command]
 fn get_note_by_id(id: u32) -> String {
-    let result = libsnotes::get_note_by_id(id).unwrap();
-    result
+    libsnotes::get_note_by_id(id).unwrap()
 }
 
 #[tauri::command]
@@ -93,7 +92,7 @@ fn init_settings() {
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
-            greet,
+            init_db,
             get_notes_list,
             get_latest_note,
             get_note_by_id,

@@ -116,6 +116,8 @@ async function retrieveNotes(): Promise<Array<JSON>> {
 window.addEventListener("DOMContentLoaded", async () => {
   // settings
   settings = await loadSettings();
+  // db
+  await invoke("init_db");
 
   console.log("ACTUAL SETTINGS IN FRONTEND: ", settings.fontSize)
   createNoteContentEl = document.querySelector("#create-input");

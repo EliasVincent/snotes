@@ -21,6 +21,11 @@ pub fn init_db() -> Result<()> {
             date TEXT NOT NULL,
             tag TEXT
         );
+        CREATE TABLE IF NOT EXISTS favourites (
+            fid INTEGER PRIMARY KEY AUTOINCREMENT,
+            nid INTEGER NOT NULL,
+            FOREIGN KEY (nid) REFERENCES notes (nid) ON DELETE CASCADE
+        );
     ";
 
     match connection.execute(query_table, []) {

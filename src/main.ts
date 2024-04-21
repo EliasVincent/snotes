@@ -200,28 +200,30 @@ window.addEventListener("DOMContentLoaded", async () => {
   // OCR
   const uploadOcrImageButtonEl = document.getElementById('image-button') as HTMLButtonElement;
   const ocrFileInputEl = document.getElementById('fileInput') as HTMLInputElement;
-
   uploadOcrImageButtonEl.addEventListener('click', () => {
     ocrFileInputEl.click(); // Simulate click on the file input
   });
 
-  ocrFileInputEl.addEventListener('change', (event) => {
+  ocrFileInputEl.addEventListener('change', async (event) => {
     const files = (event.target as HTMLInputElement).files;
     if (files) {
       console.log('Selected file:', files[0].name);
-      ocrFileInputEl.src = URL.createObjectURL(files[0]);
-      (async () => {
-        // TODO: change ocr language in settings
-        const worker = await createWorker('eng');
-        const ret = await worker.recognize(files[0]);
-        console.log(ret.data.text);
-        if (createNoteContentEl) [
-          createNoteContentEl.value += ret.data.text
-        ]
-        await worker.terminate();
-      })();
+      // Assuming you have an img element to display the selected file
+      const imageDisplayEl = document.getElementById('imageDisplay') as HTMLImageElement;
+      if (imageDisplayEl) {
+        imageDisplayEl.src = URL.createObjectURL(files[0]);
+      }
+
+      const worker = await createWorker('eng');
+      const ret = await worker.recognize(files[0]);
+      console.log(ret.data.text);
+      if (createNoteContentEl) {
+        createNoteContentEl.value += ret.data.text;
+      }
+      await worker.terminate();
     }
   });
+
 
 
   refreshContextMenuElements();

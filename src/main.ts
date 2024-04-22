@@ -1,6 +1,9 @@
 import { invoke } from "@tauri-apps/api/tauri";
+import { save } from "@tauri-apps/api/dialog";
 import { Note, Settings } from "./model";
 import { createWorker } from 'tesseract.js';
+import { writeTextFile } from "@tauri-apps/api/fs";
+import { homeDir } from "@tauri-apps/api/path";
 
 let notesMsgEl: HTMLElement | null;
 
@@ -22,6 +25,11 @@ let idModalActive = false;
 
 let typingTimer: number | null = null;
 const AUTOSAVE_DELAY = 5000;
+
+const exportFileOptions = {
+  //defaultPath: "/path/to/your/default/directory",
+  filters: [{ name: "Text Files", extensions: ["txt"] }],
+};
 
 
 enum EditorState {
@@ -139,6 +147,10 @@ window.addEventListener("DOMContentLoaded", async () => {
     e.preventDefault();
     showNotes();
   });
+  document.querySelector('#export-button')?.addEventListener("click", (e) => {
+    e.preventDefault();
+    exportNote(createNoteContentEl ? createNoteContentEl.value : null);
+  })
 
   // Pressing TAB should insert intends in the editor.
   // This could potentially cause issues later...
@@ -582,3 +594,26 @@ async function openNoteById(value: string): Promise<boolean> {
   }
   return false;
 }
+
+async function exportNote(contents: string | null) {
+  if (contents) {
+    const title = contents.slice(0, 10);
+    const filePath = await save({
+      defaultPath: (await homeDir()) + "/" + title + ".md",
+      filters: [{
+        name: 'Text',
+        extensions: ['txt', 'md']
+      }]
+    });
+    if (filePath) {
+      await (writeTextFile(filePath, contents));
+    } else {
+      console.error("Failed to get filePath")
+    }
+  } else {
+    // TODO: have some kind of error banner at the bottom for
+    // these notifications
+    console.error("Export note: failed to get note contents");
+  }
+}
+

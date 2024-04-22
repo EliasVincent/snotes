@@ -26,12 +26,6 @@ let idModalActive = false;
 let typingTimer: number | null = null;
 const AUTOSAVE_DELAY = 5000;
 
-const exportFileOptions = {
-  //defaultPath: "/path/to/your/default/directory",
-  filters: [{ name: "Text Files", extensions: ["txt"] }],
-};
-
-
 enum EditorState {
   NEW,
   EDITING
@@ -597,7 +591,7 @@ async function openNoteById(value: string): Promise<boolean> {
 
 async function exportNote(contents: string | null) {
   if (contents) {
-    const title = contents.slice(0, 10);
+    const title = contents.slice(0, 10).trim();
     const filePath = await save({
       defaultPath: (await homeDir()) + "/" + title + ".md",
       filters: [{

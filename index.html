@@ -30,6 +30,7 @@
       <button class="row" id="new-button">New</button>
       <button class="row" id="image-button">OCR</button>
       <button class="row" id="export-button">Export</button>
+      <button class="row" id="settings-button">Settings</button>
       <input type="file" id="fileInput" accept="image/*" style="display: none;" />
     </div>
   </div>
@@ -67,7 +68,14 @@
       </div>
     </div>
 
-
+    <div id="settings-modal-container">
+      <div class="settings-flex">
+        <div class="fontsize-setting">
+          <h3>Font Size (in px)</h3>
+          <input type="number" name="fontsize" id="fontsize-setting-input" placeholder="">
+        </div>
+      </div>
+    </div>
 
 
 </body>

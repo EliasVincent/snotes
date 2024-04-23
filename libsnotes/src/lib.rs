@@ -2,6 +2,8 @@ use chrono::Local;
 use home::home_dir;
 use rusqlite::{Connection, Result};
 use serde_json::json;
+use std::fs;
+use std::path::PathBuf;
 
 pub struct Note {
     id: i32,
@@ -10,9 +12,19 @@ pub struct Note {
     tag: String,
 }
 
+fn get_db_dir() -> PathBuf {
+    let dir = home_dir().unwrap().join(".snotes-data");
+    dbg!(&dir);
+    if !&dir.exists() {
+        fs::create_dir(&dir).unwrap();
+    }
+
+    dir.join(".snotes.db")
+}
+
 pub fn init_db() -> Result<()> {
-    let home = home_dir().unwrap().join(".snotes.db");
-    let connection = Connection::open(home)?;
+    let db = get_db_dir();
+    let connection = Connection::open(db)?;
 
     let query_table = "
         CREATE TABLE IF NOT EXISTS notes (
@@ -32,8 +44,8 @@ pub fn init_db() -> Result<()> {
 }
 
 pub fn create_note(content: &String, tag: &String) -> Result<()> {
-    let home = home_dir().unwrap().join(".snotes.db");
-    let connection = Connection::open(home)?;
+    let db = get_db_dir();
+    let connection = Connection::open(db)?;
     let date = Local::now();
     let date_string = date.format("%m-%d-%y %H:%M").to_string();
     let tag_string = if *tag == String::new() {
@@ -53,8 +65,8 @@ pub fn create_note(content: &String, tag: &String) -> Result<()> {
 }
 
 pub fn show_notes(all: bool, tag: &str) -> Result<String, String> {
-    let home = home_dir().unwrap().join(".snotes.db");
-    let connection = Connection::open(home).unwrap();
+    let db = get_db_dir();
+    let connection = Connection::open(db).unwrap();
 
     let mut query = "SELECT * FROM notes LIMIT 10".to_string();
 
@@ -98,8 +110,8 @@ pub fn show_notes(all: bool, tag: &str) -> Result<String, String> {
 }
 
 pub fn delete_latest_note() -> Result<(), String> {
-    let home = home_dir().unwrap().join(".snotes.db");
-    let connection = Connection::open(home).map_err(|e| format!("Database Error: {e}"))?;
+    let db = get_db_dir();
+    let connection = Connection::open(db).map_err(|e| format!("Database Error: {e}"))?;
 
     let query = String::from("DELETE FROM NOTES WHERE nid = (SELECT MAX(nid) FROM notes)");
 
@@ -113,8 +125,8 @@ pub fn delete_latest_note() -> Result<(), String> {
 }
 
 pub fn delete_specific_note(id: i32) -> Result<(), String> {
-    let home = home_dir().unwrap().join(".snotes.db");
-    let connection = Connection::open(home).map_err(|e| format!("Database Error: {e}"))?;
+    let db = get_db_dir();
+    let connection = Connection::open(db).map_err(|e| format!("Database Error: {e}"))?;
 
     let query = "DELETE FROM notes WHERE nid = ?1";
     match connection.execute(query, [id]) {
@@ -125,8 +137,8 @@ pub fn delete_specific_note(id: i32) -> Result<(), String> {
 }
 
 pub fn edit_specific_note(id: i32, tag: &str, content: &str) -> Result<(), String> {
-    let home = home_dir().unwrap().join(".snotes.db");
-    let connection = Connection::open(home).map_err(|e| format!("Database Error: {}", e))?;
+    let db = get_db_dir();
+    let connection = Connection::open(db).map_err(|e| format!("Database Error: {}", e))?;
 
     let query = "UPDATE notes SET tag = ?1, content = ?2 WHERE nid = ?3";
     match connection.execute(query, [&tag, &content, &id.to_string().as_str()]) {
@@ -138,8 +150,8 @@ pub fn edit_specific_note(id: i32, tag: &str, content: &str) -> Result<(), Strin
 
 /// Looks for matches in both content and tag.
 pub fn search_notes(query: &str) -> Result<String, String> {
-    let home = home_dir().unwrap().join(".snotes.db");
-    let connection = Connection::open(home).map_err(|e| format!("Database Error: {}", e))?;
+    let db = get_db_dir();
+    let connection = Connection::open(db).map_err(|e| format!("Database Error: {}", e))?;
 
     let query = format!(
         "SELECT * FROM notes WHERE nid LIKE '%{}%' OR content LIKE '%{}%' OR tag LIKE '%{}%'",
@@ -183,8 +195,8 @@ pub fn search_notes(query: &str) -> Result<String, String> {
 /// get latest note
 /// Returns a json array string of size 1
 pub fn get_latest_note() -> Result<String, String> {
-    let home = home_dir().unwrap().join(".snotes.db");
-    let connection = Connection::open(home).map_err(|e| format!("Database Error: {}", e))?;
+    let db = get_db_dir();
+    let connection = Connection::open(db).map_err(|e| format!("Database Error: {}", e))?;
 
     let query = "SELECT * FROM notes WHERE ROWID IN (SELECT max(ROWID) FROM notes);
     "
@@ -224,8 +236,8 @@ pub fn get_latest_note() -> Result<String, String> {
 }
 
 pub fn get_note_by_id(id: u32) -> Result<String, String> {
-    let home = home_dir().unwrap().join(".snotes.db");
-    let connection = Connection::open(home).map_err(|e| format!("Database Error: {}", e))?;
+    let db = get_db_dir();
+    let connection = Connection::open(db).map_err(|e| format!("Database Error: {}", e))?;
 
     let query = format!("SELECT * FROM notes WHERE nid IS {};", id.to_string());
     let mut prepare = connection

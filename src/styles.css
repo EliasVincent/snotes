@@ -264,6 +264,17 @@ button {
   z-index: 3;
 }
 
+#settings-modal-container {
+  display: none;
+
+  position: fixed;
+
+  margin-top: 20%;
+  margin-left: 50%;
+
+  z-index: 4;
+}
+
 /* MISC */
 
 /* Fancier Scrollbar */

@@ -145,6 +145,10 @@ window.addEventListener("DOMContentLoaded", async () => {
     e.preventDefault();
     exportNote(createNoteContentEl ? createNoteContentEl.value : null);
   })
+  document.querySelector('#settings-button')?.addEventListener("click", (e) => {
+    e.preventDefault();
+    handleOpenSettingsModal();
+  })
 
   // Pressing TAB should insert intends in the editor.
   // This could potentially cause issues later...
@@ -608,6 +612,17 @@ async function exportNote(contents: string | null) {
     // TODO: have some kind of error banner at the bottom for
     // these notifications
     console.error("Export note: failed to get note contents");
+  }
+}
+
+function handleOpenSettingsModal() {
+  const modalBg = document.getElementById("id-modal-bg");
+  const setingsModalContainer = document.getElementById("settings-modal-container");
+  const settingsFontsizeInput = document.getElementById("fontsize-setting-input");
+  if (modalBg && setingsModalContainer && settingsFontsizeInput) {
+    console.log("settings")
+  } else {
+    console.error("Failed to get Settings Modal elements.");
   }
 }
 

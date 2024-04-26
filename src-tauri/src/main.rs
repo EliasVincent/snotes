@@ -89,6 +89,17 @@ fn init_settings() {
     .unwrap();
 }
 
+#[tauri::command]
+fn save_settings(settings: String) {
+    fs::write(
+        home_dir()
+            .unwrap()
+            .join(".snotes-data/snotes-settings.json"),
+        settings,
+    )
+    .unwrap();
+}
+
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
@@ -101,7 +112,8 @@ fn main() {
             delete_specific_note,
             update_specific_note,
             init_settings,
-            load_settings
+            load_settings,
+            save_settings
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

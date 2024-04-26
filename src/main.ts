@@ -618,9 +618,42 @@ async function exportNote(contents: string | null) {
 function handleOpenSettingsModal() {
   const modalBg = document.getElementById("id-modal-bg");
   const setingsModalContainer = document.getElementById("settings-modal-container");
-  const settingsFontsizeInput = document.getElementById("fontsize-setting-input");
+  const settingsFontsizeInput = document.getElementById("fontsize-setting-input") as HTMLInputElement;
   if (modalBg && setingsModalContainer && settingsFontsizeInput) {
-    console.log("settings")
+    modalBg.style.display = "block";
+    setingsModalContainer.style.display = "block";
+    settingsFontsizeInput.focus();
+    settingsFontsizeInput.value = settings ? settings.fontSize : "16";
+
+    modalBg.addEventListener("click", () => {
+      setingsModalContainer.style.display = "none";
+      modalBg.style.display = "none";
+    });
+
+    settingsFontsizeInput.addEventListener("keydown", async (event: KeyboardEvent) => {
+      if (event.key === "Enter") {
+        console.log("saving settings..")
+        settings = {
+          fontSize: settingsFontsizeInput.value
+        }
+        await invoke("save_settings", {
+          settings: JSON.stringify(settings)
+        });
+        if (createNoteContentEl) {
+          createNoteContentEl.style.fontSize = settingsFontsizeInput.value + "px";
+        } else {
+          console.error("failed to get createNoteContentEl")
+        }
+        setingsModalContainer.style.display = "none";
+        modalBg.style.display = "none";
+      }
+      if (event.key === "Escape") {
+        setingsModalContainer.style.display = "none";
+        modalBg.style.display = "none";
+      }
+    });
+
+
   } else {
     console.error("Failed to get Settings Modal elements.");
   }

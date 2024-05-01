@@ -13,18 +13,22 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
 
-  margin-top: 0.5em;
+  margin-top: 0.25em;
 
   overflow-y: hidden;
 
 }
 
+.top-bar {
+  margin: 0;
+}
+
 #button-row {
   display: flex;
   flex-direction: row;
+  flex-flow: wrap;
   justify-content: space-evenly;
   margin: 0;
-
 }
 
 .container {
@@ -47,6 +51,8 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+
+
 }
 
 .row {
@@ -84,15 +90,19 @@ button {
 
 button {
   cursor: pointer;
+  box-sizing: border-box;
 }
 
 button:hover {
-  border-color: #396cd8;
+  border-color: #c539d8;
+  box-shadow: 0 0 5px #c539d8, 0 0 10px #c539d8, 0 0 15px #c539d8, 0 0 20px #c539d8;
+  box-sizing: border-box;
+
 }
 
 button:active {
-  border-color: #396cd8;
-  background-color: #e8e8e8;
+  border-color: #ab39d8;
+  background-color: #44003e;
 }
 
 #create-tag {
@@ -151,7 +161,7 @@ button {
 .sidebar {
   background-color: #0f0f0f;
   width: 35%;
-  padding: 20px;
+  padding: 0 20px;
 }
 
 .note-sidebar-container {
@@ -199,6 +209,8 @@ button {
   z-index: 999;
   border: 1px solid #ccc;
   padding: 5px;
+
+  background-color: #252525;
 }
 
 .menu button {
@@ -227,6 +239,8 @@ button {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   outline: none;
   font-size: 16px;
+  line-height: 1.5;
+  margin: 0 -0.6em;
 
   background-color: #252525;
   color: #f6f6f6;

@@ -189,7 +189,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   let reverseIconEl = document.querySelector('#reverse-icon') as HTMLImageElement | null;
   if (reverseIconEl) {
     reverseIconEl.src = reversed ? 'src/assets/sort-from-bottom-to-top.svg' : 'src/assets/sort-from-top-to-bottom.svg';
-    reverseIconEl.addEventListener("click", (e: Event) => {
+    reverseIconEl.addEventListener("click", () => {
       toggleReverse(reverseIconEl as HTMLImageElement);
     })
   }

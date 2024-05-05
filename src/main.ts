@@ -12,7 +12,6 @@ let createNoteTagEl: HTMLInputElement | null;
 
 let searchbarEl: HTMLInputElement | null;
 let noteSidebarContainerEl: HTMLDivElement | null;
-let noteSidebarReverseCheckboxEl: HTMLInputElement | null;
 let searchbarContents = "";
 
 let noteArray: Note[] = []
@@ -186,12 +185,12 @@ window.addEventListener("DOMContentLoaded", async () => {
   })
 
   // sidebar reverse toggle
-  noteSidebarReverseCheckboxEl = document.querySelector('#reverse-toggle');
-  if (noteSidebarReverseCheckboxEl) {
-    console.log(noteSidebarReverseCheckboxEl.value);
-    noteSidebarReverseCheckboxEl.addEventListener("click", (e: Event) => {
-      const target = e.target as HTMLInputElement
-      toggleReverse(target.checked);
+
+  let reverseIconEl = document.querySelector('#reverse-icon') as HTMLImageElement | null;
+  if (reverseIconEl) {
+    reverseIconEl.src = reversed ? 'src/assets/sort-from-bottom-to-top.svg' : 'src/assets/sort-from-top-to-bottom.svg';
+    reverseIconEl.addEventListener("click", (e: Event) => {
+      toggleReverse(reverseIconEl as HTMLImageElement);
     })
   }
 
@@ -338,7 +337,7 @@ function fillNoteSidebar(noteArray: Note[], reverse: boolean) {
 
       const tagSpan: HTMLSpanElement = document.createElement('span');
       tagSpan.classList.add('sidebar-note-tag');
-      tagSpan.textContent = note.tag as string;
+      tagSpan.textContent = note.tag.length > 9 ? note.tag.substring(0, 11) + ".." : note.tag as string;
 
 
       noteEl.appendChild(idSpan);
@@ -561,8 +560,15 @@ async function refreshSidebarAndOpenLatestNote() {
   openNote(latestNote);
 }
 
-function toggleReverse(val: boolean) {
-  reversed = val;
+function toggleReverse(reverseIconEl: HTMLImageElement | null) {
+  reversed = !reversed;
+
+  if (reverseIconEl) {
+    reversed ? reverseIconEl.src = 'src/assets/sort-from-bottom-to-top.svg' : reverseIconEl.src = 'src/assets/sort-from-top-to-bottom.svg';
+  } else {
+    console.error("failed to get reverseIconEl");
+  }
+
   showNotes();
 }
 

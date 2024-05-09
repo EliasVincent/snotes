@@ -76,7 +76,8 @@ fn init_settings() {
 
     let settings = r#"
     {
-        "fontSize": "16px"
+        "fontSize": "16px",
+        "ocrLanguage": "eng",
     }
     "#;
 

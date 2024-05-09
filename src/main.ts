@@ -125,6 +125,12 @@ window.addEventListener("DOMContentLoaded", async () => {
   createNoteTagEl = document.querySelector("#create-tag");
   searchbarEl = document.querySelector("#note-searchbar");
   notesMsgEl = document.querySelector("#notes-list");
+
+  // apply font size
+  if (createNoteContentEl) {
+    createNoteContentEl.style.fontSize = settings.fontSize + "px";
+  }
+
   showNotes();
   document.querySelector("#save-button")?.addEventListener("click", (e) => {
     e.preventDefault();
@@ -228,7 +234,7 @@ window.addEventListener("DOMContentLoaded", async () => {
       ocrFileInputEl.src = URL.createObjectURL(files[0]);
       (async () => {
         // TODO: change ocr language in settings
-        const worker = await createWorker('eng');
+        const worker = await createWorker(settings ? settings.ocrLanguage : "eng");
         const ret = await worker.recognize(files[0]);
         console.log(ret.data.text);
         if (createNoteContentEl) [
@@ -245,7 +251,8 @@ window.addEventListener("DOMContentLoaded", async () => {
 
 async function loadSettings(): Promise<Settings> {
   const defaultSettings: Settings = {
-    fontSize: "16px"
+    fontSize: "16px",
+    ocrLanguage: "eng"
   };
 
   try {
@@ -634,11 +641,14 @@ function handleOpenSettingsModal() {
   const modalBg = document.getElementById("id-modal-bg");
   const setingsModalContainer = document.getElementById("settings-modal-container");
   const settingsFontsizeInput = document.getElementById("fontsize-setting-input") as HTMLInputElement;
+  const settingsOcrLanguageInput = document.getElementById("ocr-language-setting-input") as HTMLInputElement;
+  const settingsSaveButton = document.getElementById("save-settings-button");
   if (modalBg && setingsModalContainer && settingsFontsizeInput) {
     modalBg.style.display = "block";
     setingsModalContainer.style.display = "block";
     settingsFontsizeInput.focus();
     settingsFontsizeInput.value = settings ? settings.fontSize : "16";
+    settingsOcrLanguageInput.value = settings ? settings.ocrLanguage : "eng";
 
     modalBg.addEventListener("click", () => {
       setingsModalContainer.style.display = "none";
@@ -649,7 +659,8 @@ function handleOpenSettingsModal() {
       if (event.key === "Enter") {
         console.log("saving settings..")
         settings = {
-          fontSize: settingsFontsizeInput.value
+          fontSize: settingsFontsizeInput.value,
+          ocrLanguage: settingsOcrLanguageInput.value === "" ? "eng" : settingsOcrLanguageInput.value
         }
         await invoke("save_settings", {
           settings: JSON.stringify(settings)
@@ -667,6 +678,28 @@ function handleOpenSettingsModal() {
         modalBg.style.display = "none";
       }
     });
+
+    if (settingsSaveButton) {
+      settingsSaveButton.addEventListener("click", async () => {
+        console.log("saving settings..")
+        settings = {
+          fontSize: settingsFontsizeInput.value,
+          ocrLanguage: settingsOcrLanguageInput.value === "" ? "eng" : settingsOcrLanguageInput.value
+        }
+        await invoke("save_settings", {
+          settings: JSON.stringify(settings)
+        });
+        if (createNoteContentEl) {
+          createNoteContentEl.style.fontSize = settingsFontsizeInput.value + "px";
+        } else {
+          console.error("failed to get createNoteContentEl")
+        }
+        setingsModalContainer.style.display = "none";
+        modalBg.style.display = "none";
+      });
+    } else {
+      console.error("Failed to get Settings Modal save button.");
+    }
 
 
   } else {

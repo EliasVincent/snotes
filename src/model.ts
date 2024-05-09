@@ -6,5 +6,6 @@ export type Note = {
 };
 
 export type Settings = {
-    fontSize: string
+    fontSize: string,
+    ocrLanguage: string,
 };

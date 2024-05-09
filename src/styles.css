@@ -334,6 +334,11 @@ button {
   z-index: 4;
 }
 
+#save-settings-button {
+  margin: 1em;
+
+}
+
 /* MISC */
 
 /* Fancier Scrollbar */

@@ -186,12 +186,17 @@ window.addEventListener("DOMContentLoaded", async () => {
 
   // sidebar reverse toggle
 
-  let reverseIconEl = document.querySelector('#reverse-icon') as HTMLImageElement | null;
-  if (reverseIconEl) {
-    reverseIconEl.src = reversed ? 'src/assets/sort-from-bottom-to-top.svg' : 'src/assets/sort-from-top-to-bottom.svg';
-    reverseIconEl.addEventListener("click", () => {
-      toggleReverse(reverseIconEl as HTMLImageElement);
-    })
+  let reverseIconAscEl = document.querySelector('#reverse-icon-asc') as HTMLImageElement | null;
+  let reverseIconDescEl = document.querySelector('#reverse-icon-desc') as HTMLImageElement | null;
+  if (reverseIconAscEl && reverseIconDescEl) {
+    reverseIconDescEl.style.display = "none";
+
+    const toggle = () => {
+      toggleReverse(reverseIconAscEl as HTMLImageElement, reverseIconDescEl as HTMLImageElement);
+    };
+
+    reverseIconAscEl.addEventListener("click", toggle);
+    reverseIconDescEl.addEventListener("click", toggle);
   }
 
   // auto-save timer
@@ -560,13 +565,17 @@ async function refreshSidebarAndOpenLatestNote() {
   openNote(latestNote);
 }
 
-function toggleReverse(reverseIconEl: HTMLImageElement | null) {
+function toggleReverse(reverseIconAscEl: HTMLImageElement | null, reverseIconDescEl: HTMLImageElement | null) {
   reversed = !reversed;
 
-  if (reverseIconEl) {
-    reversed ? reverseIconEl.src = 'src/assets/sort-from-bottom-to-top.svg' : reverseIconEl.src = 'src/assets/sort-from-top-to-bottom.svg';
-  } else {
-    console.error("failed to get reverseIconEl");
+  if (reverseIconAscEl && reverseIconDescEl) {
+    if (reverseIconAscEl.style.display !== 'none') {
+      reverseIconAscEl.style.display = 'none';
+      reverseIconDescEl.style.display = 'block';
+    } else {
+      reverseIconAscEl.style.display = 'block';
+      reverseIconDescEl.style.display = 'none';
+    }
   }
 
   showNotes();

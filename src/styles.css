@@ -211,7 +211,23 @@ button {
   text-overflow: ellipsis;
 }
 
-#reverse-icon {
+#reverse-icon-asc {
+  display: blocK;
+
+  width: 1.5em;
+  height: 1.5em;
+
+  color: white;
+
+  cursor: pointer;
+
+  margin-right: 1.5em;
+  margin-left: -0.8em;
+}
+
+#reverse-icon-desc {
+  display: none;
+
   width: 1.5em;
   height: 1.5em;
 

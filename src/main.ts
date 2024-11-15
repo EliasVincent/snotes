@@ -1,7 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { save } from "@tauri-apps/plugin-dialog";
 import { Note, Settings } from "./model";
-import { createWorker } from 'tesseract.js';
+import { createWorker } from "tesseract.js";
 import { writeTextFile } from "@tauri-apps/plugin-fs";
 import { homeDir } from "@tauri-apps/api/path";
 
@@ -14,7 +14,7 @@ let searchbarEl: HTMLInputElement | null;
 let noteSidebarContainerEl: HTMLDivElement | null;
 let searchbarContents = "";
 
-let noteArray: Note[] = []
+let noteArray: Note[] = [];
 
 /** ID of current note, if we're editing an existing note */
 let currentNoteId: number | null = null;
@@ -27,12 +27,12 @@ const AUTOSAVE_DELAY = 5000;
 
 enum EditorState {
   NEW,
-  EDITING
+  EDITING,
 }
 
 enum SearchState {
   EMPTY,
-  RESULTS
+  RESULTS,
 }
 
 /** Editor always initializes in the NEW state */
@@ -50,21 +50,21 @@ async function saveNote() {
   if (createNoteContentEl && createNoteTagEl) {
     switch (editorState) {
       case EditorState.NEW:
-        console.log("creating new note..")
+        console.log("creating new note..");
         await invoke("create_note", {
           content: createNoteContentEl.value,
-          tag: createNoteTagEl.value
+          tag: createNoteTagEl.value,
         });
         //clearEditor();
         refreshSidebarAndOpenLatestNote();
         break;
       case EditorState.EDITING:
-        console.log("updating existing note..")
+        console.log("updating existing note..");
         if (currentNoteId !== null) {
           await invoke("update_specific_note", {
             id: currentNoteId,
             content: createNoteContentEl.value,
-            tag: createNoteTagEl.value
+            tag: createNoteTagEl.value,
           });
           // do not clear the editor
           //clearEditor();
@@ -79,7 +79,7 @@ async function saveNote() {
 
 /**
  * Retrieve Notes from DB and fill the sidebar with them.
- * 
+ *
  * If there's something in the searchbar, do not clear that.
  */
 async function showNotes() {
@@ -91,7 +91,7 @@ async function showNotes() {
         id: jsonObj.id,
         content: jsonObj.content,
         date: jsonObj.date,
-        tag: jsonObj.tag
+        tag: jsonObj.tag,
       }));
 
       fillNoteSidebar(noteArray, reversed);
@@ -99,7 +99,6 @@ async function showNotes() {
       searchNote(searchbarContents);
     }
   }
-
 }
 async function retrieveNotes(): Promise<Array<JSON>> {
   const notesString: string = await invoke("get_notes_list");
@@ -120,7 +119,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   // db
   await invoke("init_db");
 
-  console.log("ACTUAL SETTINGS IN FRONTEND: ", settings.fontSize)
+  console.log("ACTUAL SETTINGS IN FRONTEND: ", settings.fontSize);
   createNoteContentEl = document.querySelector("#create-input");
   createNoteTagEl = document.querySelector("#create-tag");
   searchbarEl = document.querySelector("#note-searchbar");
@@ -142,63 +141,76 @@ window.addEventListener("DOMContentLoaded", async () => {
     clearEditor();
     showNotes();
   });
-  document.querySelector("#show-notes-button")?.addEventListener("click", (e) => {
-    e.preventDefault();
-    showNotes();
-  });
-  document.querySelector('#export-button')?.addEventListener("click", (e) => {
+  document
+    .querySelector("#show-notes-button")
+    ?.addEventListener("click", (e) => {
+      e.preventDefault();
+      showNotes();
+    });
+  document.querySelector("#export-button")?.addEventListener("click", (e) => {
     e.preventDefault();
     exportNote(createNoteContentEl ? createNoteContentEl.value : null);
-  })
-  document.querySelector('#settings-button')?.addEventListener("click", (e) => {
+  });
+  document.querySelector("#settings-button")?.addEventListener("click", (e) => {
     e.preventDefault();
     handleOpenSettingsModal();
-  })
+  });
 
   // Pressing TAB should insert intends in the editor.
   // This could potentially cause issues later...
-  document.querySelector("#create-input")?.addEventListener("keydown", (event: Event) => {
-    const e = event as KeyboardEvent;
-    if (e.key === 'Tab') {
-      e.preventDefault();
-      const target = e.target as HTMLTextAreaElement;
-      const start = target.selectionStart;
-      const end = target.selectionEnd;
+  document
+    .querySelector("#create-input")
+    ?.addEventListener("keydown", (event: Event) => {
+      const e = event as KeyboardEvent;
+      if (e.key === "Tab") {
+        e.preventDefault();
+        const target = e.target as HTMLTextAreaElement;
+        const start = target.selectionStart;
+        const end = target.selectionEnd;
 
-      const newValue = target.value.substring(0, start) +
-        "\t" + target.value.substring(end);
+        const newValue =
+          target.value.substring(0, start) + "\t" + target.value.substring(end);
 
-      target.value = newValue;
+        target.value = newValue;
 
-      target.setSelectionRange(start + 1, start + 1);
-    }
-  });
+        target.setSelectionRange(start + 1, start + 1);
+      }
+    });
 
   // searchbar event listener
 
-  document.querySelector("#note-searchbar")?.addEventListener("input", (event: Event) => {
-    const target = event.target as HTMLInputElement;
-    const input = target.value;
+  document
+    .querySelector("#note-searchbar")
+    ?.addEventListener("input", (event: Event) => {
+      const target = event.target as HTMLInputElement;
+      const input = target.value;
 
-    if (target.value == "") {
-      searchState = SearchState.EMPTY;
-    } else {
-      searchState = SearchState.RESULTS;
-    }
-    searchbarContents = input;
+      if (target.value == "") {
+        searchState = SearchState.EMPTY;
+      } else {
+        searchState = SearchState.RESULTS;
+      }
+      searchbarContents = input;
 
-    searchNote(input);
-  })
+      searchNote(input);
+    });
 
   // sidebar reverse toggle
 
-  let reverseIconAscEl = document.querySelector('#reverse-icon-asc') as HTMLImageElement | null;
-  let reverseIconDescEl = document.querySelector('#reverse-icon-desc') as HTMLImageElement | null;
+  let reverseIconAscEl = document.querySelector(
+    "#reverse-icon-asc"
+  ) as HTMLImageElement | null;
+  let reverseIconDescEl = document.querySelector(
+    "#reverse-icon-desc"
+  ) as HTMLImageElement | null;
   if (reverseIconAscEl && reverseIconDescEl) {
     reverseIconDescEl.style.display = "none";
 
     const toggle = () => {
-      toggleReverse(reverseIconAscEl as HTMLImageElement, reverseIconDescEl as HTMLImageElement);
+      toggleReverse(
+        reverseIconAscEl as HTMLImageElement,
+        reverseIconDescEl as HTMLImageElement
+      );
     };
 
     reverseIconAscEl.addEventListener("click", toggle);
@@ -216,35 +228,62 @@ window.addEventListener("DOMContentLoaded", async () => {
   });
 
   if (createNoteContentEl) {
-    createNoteContentEl.style.fontSize = settings.fontSize
+    createNoteContentEl.style.fontSize = settings.fontSize;
   }
 
   // OCR
-  const uploadOcrImageButtonEl = document.getElementById('image-button') as HTMLButtonElement;
-  const ocrFileInputEl = document.getElementById('fileInput') as HTMLInputElement;
+  const uploadOcrImageButtonEl = document.getElementById(
+    "image-button"
+  ) as HTMLButtonElement;
+  const ocrFileInputEl = document.getElementById(
+    "fileInput"
+  ) as HTMLInputElement;
 
-  uploadOcrImageButtonEl.addEventListener('click', () => {
+  uploadOcrImageButtonEl.addEventListener("click", () => {
     ocrFileInputEl.click(); // Simulate click on the file input
   });
 
-  ocrFileInputEl.addEventListener('change', (event) => {
+  ocrFileInputEl.addEventListener("change", (event) => {
     const files = (event.target as HTMLInputElement).files;
     if (files) {
-      console.log('Selected file:', files[0].name);
+      console.log("Selected file:", files[0].name);
       ocrFileInputEl.src = URL.createObjectURL(files[0]);
       (async () => {
         // TODO: change ocr language in settings
-        const worker = await createWorker(settings ? settings.ocrLanguage : "eng");
+        const worker = await createWorker(
+          settings ? settings.ocrLanguage : "eng"
+        );
         const ret = await worker.recognize(files[0]);
         console.log(ret.data.text);
-        if (createNoteContentEl) [
-          createNoteContentEl.value += ret.data.text
-        ]
+        if (createNoteContentEl) [(createNoteContentEl.value += ret.data.text)];
         await worker.terminate();
       })();
     }
   });
 
+  // Resizable Sidebar
+  const sidebar = document.querySelector(".sidebar") as HTMLDivElement;
+  const resizableHandle = document.querySelector(
+    ".resizable-handle"
+  ) as HTMLDivElement;
+
+  let isResizing = false;
+
+  resizableHandle.addEventListener("mousedown", () => {
+    isResizing = true;
+    document.body.style.cursor = "ew-resize";
+  });
+
+  document.addEventListener("mousemove", (e) => {
+    if (!isResizing) return;
+    const newWidth = e.clientX - sidebar.getBoundingClientRect().left;
+    sidebar.style.width = `${newWidth}px`;
+  });
+
+  document.addEventListener("mouseup", () => {
+    isResizing = false;
+    document.body.style.cursor = "default";
+  });
 
   refreshContextMenuElements();
 });
@@ -252,7 +291,7 @@ window.addEventListener("DOMContentLoaded", async () => {
 async function loadSettings(): Promise<Settings> {
   const defaultSettings: Settings = {
     fontSize: "16px",
-    ocrLanguage: "eng"
+    ocrLanguage: "eng",
   };
 
   try {
@@ -276,12 +315,13 @@ async function loadSettings(): Promise<Settings> {
  * We need to add new event listeners every time we refresh the note list
  */
 function refreshContextMenuElements() {
-  const elements: NodeListOf<HTMLElement> = document.querySelectorAll(".rightclick-element")
-  const contextMenu = document.getElementById('contextMenu');
+  const elements: NodeListOf<HTMLElement> = document.querySelectorAll(
+    ".rightclick-element"
+  );
+  const contextMenu = document.getElementById("contextMenu");
 
   if (contextMenu) {
-    elements.forEach(element => {
-
+    elements.forEach((element) => {
       element.addEventListener("contextmenu", (e: MouseEvent) => {
         e.preventDefault();
 
@@ -295,15 +335,16 @@ function refreshContextMenuElements() {
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
 
-        let posX = mouseX + menuWidth > viewportWidth ? mouseX - menuWidth : mouseX;
-        let posY = mouseY + menuHeight > viewportHeight ? mouseY - menuHeight : mouseY;
+        let posX =
+          mouseX + menuWidth > viewportWidth ? mouseX - menuWidth : mouseX;
+        let posY =
+          mouseY + menuHeight > viewportHeight ? mouseY - menuHeight : mouseY;
 
-
-        contextMenu.style.display = 'block';
+        contextMenu.style.display = "block";
         contextMenu.style.left = `${posX}px`;
         contextMenu.style.top = `${posY}px`;
 
-        const noteIdElement = element.querySelector('.sidebar-note-id');
+        const noteIdElement = element.querySelector(".sidebar-note-id");
         if (noteIdElement) {
           const noteIdStr = noteIdElement.textContent;
           if (noteIdStr) {
@@ -311,16 +352,14 @@ function refreshContextMenuElements() {
             showNoteSidebarContextMenu(noteId);
           }
         } else {
-          console.error('.sidebar-note-id element not found within the note.');
+          console.error(".sidebar-note-id element not found within the note.");
         }
       });
-
-    })
+    });
   }
 }
 
 function fillNoteSidebar(noteArray: Note[], reverse: boolean) {
-
   noteSidebarContainerEl = document.querySelector("#note-sidebar-container");
 
   if (noteSidebarContainerEl) {
@@ -331,39 +370,49 @@ function fillNoteSidebar(noteArray: Note[], reverse: boolean) {
 
     noteArray.forEach((note) => {
       // Create HTML elements for each note
-      const noteEl: HTMLDivElement = document.createElement('div');
-      noteEl.classList.add('sidebar-note');
-      noteEl.classList.add('rightclick-element');
-      noteEl.addEventListener("click", () => handleSidebarNoteClick(note.id), false);
+      const noteEl: HTMLDivElement = document.createElement("div");
+      noteEl.classList.add("sidebar-note");
+      noteEl.classList.add("rightclick-element");
+      noteEl.addEventListener(
+        "click",
+        () => handleSidebarNoteClick(note.id),
+        false
+      );
 
-      const idSpan: HTMLSpanElement = document.createElement('span');
-      idSpan.classList.add('sidebar-note-id');
+      const idSpan: HTMLSpanElement = document.createElement("span");
+      idSpan.classList.add("sidebar-note-id");
       idSpan.textContent = note.id.toString();
 
-      const contentSpan: HTMLSpanElement = document.createElement('span');
-      contentSpan.classList.add('sidebar-note-content');
+      const contentSpan: HTMLSpanElement = document.createElement("span");
+      contentSpan.classList.add("sidebar-note-content");
 
       // Show ... when text is too long
-      contentSpan.textContent = note.content.length > 20 ? note.content.substring(0, 20) + "..." : note.content as string;
+      contentSpan.textContent =
+        note.content.length > 80
+          ? note.content.substring(0, 80) + "..."
+          : (note.content as string);
       contentSpan.title = note.content as string;
 
-      const tagSpan: HTMLSpanElement = document.createElement('span');
-      tagSpan.classList.add('sidebar-note-tag');
-      tagSpan.textContent = note.tag.length > 9 ? note.tag.substring(0, 11) + ".." : note.tag as string;
-
+      const tagSpan: HTMLSpanElement = document.createElement("span");
+      tagSpan.classList.add("sidebar-note-tag");
+      tagSpan.textContent =
+        note.tag.length > 9
+          ? note.tag.substring(0, 11) + ".."
+          : (note.tag as string);
 
       noteEl.appendChild(idSpan);
       noteEl.appendChild(contentSpan);
       noteEl.appendChild(tagSpan);
 
       // Append noteEl to the container, if it still exists?
-      noteSidebarContainerEl ? noteSidebarContainerEl.appendChild(noteEl) : null;
+      noteSidebarContainerEl
+        ? noteSidebarContainerEl.appendChild(noteEl)
+        : null;
     });
 
     refreshContextMenuElements();
   }
 }
-
 
 function handleSidebarNoteClick(id: Number): any {
   console.log("clicked note " + id);
@@ -373,17 +422,17 @@ function handleSidebarNoteClick(id: Number): any {
       id: 0,
       content: "undefined",
       date: "undefined",
-      tag: "undefined"
+      tag: "undefined",
     };
 
-    noteArray.forEach(note => {
+    noteArray.forEach((note) => {
       if (note.id === id) {
         n = note;
       }
     });
 
     if (n) {
-      // save if there's something in the editor currently 
+      // save if there's something in the editor currently
       // before we open the new note to prevent data loss
       if (createNoteContentEl.value != "") {
         saveNote();
@@ -394,29 +443,28 @@ function handleSidebarNoteClick(id: Number): any {
       // don't destory currently editing note if this fails
       console.error("Error fetching note");
     }
-
   }
 }
 
 function showNoteSidebarContextMenu(noteId: Number) {
-  const contextMenu = document.getElementById('contextMenu');
-  const deleteButton = document.getElementById('deleteButton');
+  const contextMenu = document.getElementById("contextMenu");
+  const deleteButton = document.getElementById("deleteButton");
 
   if (contextMenu && deleteButton) {
-    deleteButton.addEventListener('click', async function () {
-      console.log('Deleting...');
+    deleteButton.addEventListener("click", async function () {
+      console.log("Deleting...");
       await invoke("delete_specific_note", {
-        id: noteId
+        id: noteId,
       });
       // hide after delete
-      contextMenu.style.display = 'none';
+      contextMenu.style.display = "none";
       showNotes();
     });
 
     // hide when clicking outside of it
-    document.addEventListener('click', function (event) {
+    document.addEventListener("click", function (event) {
       if (!contextMenu.contains(event.target as Node)) {
-        contextMenu.style.display = 'none';
+        contextMenu.style.display = "none";
       }
     });
   }
@@ -450,29 +498,29 @@ function clearEditor() {
 }
 
 // Listen for global key presses
-document.addEventListener('keydown', (e) => handleKeyboardShortcuts(e));
+document.addEventListener("keydown", (e) => handleKeyboardShortcuts(e));
 
 /**
  * Handle global keyboard shortcuts like save, search, new
  */
 function handleKeyboardShortcuts(event: KeyboardEvent) {
   // save
-  if (event.ctrlKey && event.key === 's') {
+  if (event.ctrlKey && event.key === "s") {
     event.preventDefault();
     saveNote();
   }
   // new
-  if (event.ctrlKey && event.key === 'n') {
+  if (event.ctrlKey && event.key === "n") {
     event.preventDefault();
     clearEditor();
   }
   // refresh
-  if (event.ctrlKey && event.key === 'r') {
+  if (event.ctrlKey && event.key === "r") {
     event.preventDefault();
     showNotes();
   }
   // focus searchbox
-  if (event.ctrlKey && event.key === 'f') {
+  if (event.ctrlKey && event.key === "f") {
     event.preventDefault();
     if (searchbarEl) {
       searchbarEl.focus();
@@ -481,11 +529,11 @@ function handleKeyboardShortcuts(event: KeyboardEvent) {
     }
   }
   // open by id: open modal
-  if (event.ctrlKey && event.key === 't') {
+  if (event.ctrlKey && event.key === "t") {
     event.preventDefault();
     const modalBg = document.getElementById("id-modal-bg");
     const modal = document.getElementById("id-modal-container");
-    const idSearchBar = document.getElementById("id-search")
+    const idSearchBar = document.getElementById("id-search");
     if (modalBg && modal && idSearchBar) {
       modalBg.style.display = "block";
       modal.style.display = "block";
@@ -497,7 +545,7 @@ function handleKeyboardShortcuts(event: KeyboardEvent) {
         modal.style.display = "none";
         modalBg.style.display = "none";
         idModalActive = false;
-      })
+      });
 
       idSearchBar.addEventListener("keydown", async (event: KeyboardEvent) => {
         if (event.key === "Enter" && idModalActive) {
@@ -509,7 +557,8 @@ function handleKeyboardShortcuts(event: KeyboardEvent) {
             idModalActive = false;
           } else {
             (idSearchBar as HTMLInputElement).value = "";
-            (idSearchBar as HTMLInputElement).placeholder = "no Note found for ID";
+            (idSearchBar as HTMLInputElement).placeholder =
+              "no Note found for ID";
           }
         }
         if (event.key === "Escape" && idModalActive) {
@@ -518,8 +567,9 @@ function handleKeyboardShortcuts(event: KeyboardEvent) {
           idModalActive = false;
         }
       });
-
-    } else { console.error("failed to get modal"); }
+    } else {
+      console.error("failed to get modal");
+    }
   }
   // quick switch note 1-9
 }
@@ -535,7 +585,7 @@ async function searchNote(input: string) {
       id: jsonObj.id,
       content: jsonObj.content,
       date: jsonObj.date,
-      tag: jsonObj.tag
+      tag: jsonObj.tag,
     }));
 
     fillNoteSidebar(noteArray, reversed);
@@ -544,7 +594,7 @@ async function searchNote(input: string) {
 
 async function getSearchResults(input: string): Promise<Array<JSON>> {
   const resultsString: string = await invoke("search_notes", {
-    query: input
+    query: input,
   });
   const resultsJson = JSON.parse(resultsString);
   return resultsJson;
@@ -566,22 +616,25 @@ async function refreshSidebarAndOpenLatestNote() {
     id: noteJson[0].id,
     content: noteJson[0].content,
     date: noteJson[0].date,
-    tag: noteJson[0].tag
-  }
+    tag: noteJson[0].tag,
+  };
 
   openNote(latestNote);
 }
 
-function toggleReverse(reverseIconAscEl: HTMLImageElement | null, reverseIconDescEl: HTMLImageElement | null) {
+function toggleReverse(
+  reverseIconAscEl: HTMLImageElement | null,
+  reverseIconDescEl: HTMLImageElement | null
+) {
   reversed = !reversed;
 
   if (reverseIconAscEl && reverseIconDescEl) {
-    if (reverseIconAscEl.style.display !== 'none') {
-      reverseIconAscEl.style.display = 'none';
-      reverseIconDescEl.style.display = 'block';
+    if (reverseIconAscEl.style.display !== "none") {
+      reverseIconAscEl.style.display = "none";
+      reverseIconDescEl.style.display = "block";
     } else {
-      reverseIconAscEl.style.display = 'block';
-      reverseIconDescEl.style.display = 'none';
+      reverseIconAscEl.style.display = "block";
+      reverseIconDescEl.style.display = "none";
     }
   }
 
@@ -592,10 +645,10 @@ async function openNoteById(value: string): Promise<boolean> {
   const id: Number | null = parseInt(value);
   if (id) {
     const noteString = await invoke("get_note_by_id", {
-      id: id
+      id: id,
     });
-    console.log("id called: " + id)
-    console.log("note string: " + noteString)
+    console.log("id called: " + id);
+    console.log("note string: " + noteString);
     const noteJson = JSON.parse(noteString as string);
 
     if (noteJson.length == 0) {
@@ -606,8 +659,8 @@ async function openNoteById(value: string): Promise<boolean> {
       id: noteJson[0].id,
       content: noteJson[0].content,
       date: noteJson[0].date,
-      tag: noteJson[0].tag
-    }
+      tag: noteJson[0].tag,
+    };
 
     openNote(foundNote);
     return true;
@@ -620,15 +673,17 @@ async function exportNote(contents: string | null) {
     const title = contents.slice(0, 10).trim();
     const filePath = await save({
       defaultPath: (await homeDir()) + "/" + title + ".md",
-      filters: [{
-        name: 'Text',
-        extensions: ['txt', 'md']
-      }]
+      filters: [
+        {
+          name: "Text",
+          extensions: ["txt", "md"],
+        },
+      ],
     });
     if (filePath) {
-      await (writeTextFile(filePath, contents));
+      await writeTextFile(filePath, contents);
     } else {
-      console.error("Failed to get filePath")
+      console.error("Failed to get filePath");
     }
   } else {
     // TODO: have some kind of error banner at the bottom for
@@ -639,9 +694,15 @@ async function exportNote(contents: string | null) {
 
 function handleOpenSettingsModal() {
   const modalBg = document.getElementById("id-modal-bg");
-  const setingsModalContainer = document.getElementById("settings-modal-container");
-  const settingsFontsizeInput = document.getElementById("fontsize-setting-input") as HTMLInputElement;
-  const settingsOcrLanguageInput = document.getElementById("ocr-language-setting-input") as HTMLInputElement;
+  const setingsModalContainer = document.getElementById(
+    "settings-modal-container"
+  );
+  const settingsFontsizeInput = document.getElementById(
+    "fontsize-setting-input"
+  ) as HTMLInputElement;
+  const settingsOcrLanguageInput = document.getElementById(
+    "ocr-language-setting-input"
+  ) as HTMLInputElement;
   const settingsSaveButton = document.getElementById("save-settings-button");
   if (modalBg && setingsModalContainer && settingsFontsizeInput) {
     modalBg.style.display = "block";
@@ -655,44 +716,55 @@ function handleOpenSettingsModal() {
       modalBg.style.display = "none";
     });
 
-    settingsFontsizeInput.addEventListener("keydown", async (event: KeyboardEvent) => {
-      if (event.key === "Enter") {
-        console.log("saving settings..")
-        settings = {
-          fontSize: settingsFontsizeInput.value,
-          ocrLanguage: settingsOcrLanguageInput.value === "" ? "eng" : settingsOcrLanguageInput.value
+    settingsFontsizeInput.addEventListener(
+      "keydown",
+      async (event: KeyboardEvent) => {
+        if (event.key === "Enter") {
+          console.log("saving settings..");
+          settings = {
+            fontSize: settingsFontsizeInput.value,
+            ocrLanguage:
+              settingsOcrLanguageInput.value === ""
+                ? "eng"
+                : settingsOcrLanguageInput.value,
+          };
+          await invoke("save_settings", {
+            settings: JSON.stringify(settings),
+          });
+          if (createNoteContentEl) {
+            createNoteContentEl.style.fontSize =
+              settingsFontsizeInput.value + "px";
+          } else {
+            console.error("failed to get createNoteContentEl");
+          }
+          setingsModalContainer.style.display = "none";
+          modalBg.style.display = "none";
         }
-        await invoke("save_settings", {
-          settings: JSON.stringify(settings)
-        });
-        if (createNoteContentEl) {
-          createNoteContentEl.style.fontSize = settingsFontsizeInput.value + "px";
-        } else {
-          console.error("failed to get createNoteContentEl")
+        if (event.key === "Escape") {
+          setingsModalContainer.style.display = "none";
+          modalBg.style.display = "none";
         }
-        setingsModalContainer.style.display = "none";
-        modalBg.style.display = "none";
       }
-      if (event.key === "Escape") {
-        setingsModalContainer.style.display = "none";
-        modalBg.style.display = "none";
-      }
-    });
+    );
 
     if (settingsSaveButton) {
       settingsSaveButton.addEventListener("click", async () => {
-        console.log("saving settings..")
+        console.log("saving settings..");
         settings = {
           fontSize: settingsFontsizeInput.value,
-          ocrLanguage: settingsOcrLanguageInput.value === "" ? "eng" : settingsOcrLanguageInput.value
-        }
+          ocrLanguage:
+            settingsOcrLanguageInput.value === ""
+              ? "eng"
+              : settingsOcrLanguageInput.value,
+        };
         await invoke("save_settings", {
-          settings: JSON.stringify(settings)
+          settings: JSON.stringify(settings),
         });
         if (createNoteContentEl) {
-          createNoteContentEl.style.fontSize = settingsFontsizeInput.value + "px";
+          createNoteContentEl.style.fontSize =
+            settingsFontsizeInput.value + "px";
         } else {
-          console.error("failed to get createNoteContentEl")
+          console.error("failed to get createNoteContentEl");
         }
         setingsModalContainer.style.display = "none";
         modalBg.style.display = "none";
@@ -700,10 +772,7 @@ function handleOpenSettingsModal() {
     } else {
       console.error("Failed to get Settings Modal save button.");
     }
-
-
   } else {
     console.error("Failed to get Settings Modal elements.");
   }
 }
-

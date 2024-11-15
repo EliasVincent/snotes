@@ -18,7 +18,7 @@
   },
   "productName": "snotes-deck",
   "mainBinaryName": "snotes-deck",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "identifier": "space.maidsin.snotes-deck",
   "plugins": {},
   "app": {

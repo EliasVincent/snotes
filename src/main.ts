@@ -1,8 +1,8 @@
-import { invoke } from "@tauri-apps/api/tauri";
-import { save } from "@tauri-apps/api/dialog";
+import { invoke } from "@tauri-apps/api/core";
+import { save } from "@tauri-apps/plugin-dialog";
 import { Note, Settings } from "./model";
 import { createWorker } from 'tesseract.js';
-import { writeTextFile } from "@tauri-apps/api/fs";
+import { writeTextFile } from "@tauri-apps/plugin-fs";
 import { homeDir } from "@tauri-apps/api/path";
 
 let notesMsgEl: HTMLElement | null;

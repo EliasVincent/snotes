@@ -7,6 +7,11 @@ use home::home_dir;
 use libsnotes::show_notes;
 
 #[tauri::command]
+fn get_app_version() -> String {
+    env!("CARGO_PKG_VERSION").to_string()
+}
+
+#[tauri::command]
 fn init_db() {
     libsnotes::init_db().unwrap();
     println!("initted")
@@ -107,6 +112,7 @@ fn main() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
+            get_app_version,
             init_db,
             get_notes_list,
             get_latest_note,

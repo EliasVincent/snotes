@@ -18,14 +18,14 @@
   },
   "productName": "snotes-deck",
   "mainBinaryName": "snotes-deck",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "identifier": "space.maidsin.snotes-deck",
   "plugins": {},
   "app": {
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "Snotes Deck",
+        "title": "Snotes",
         "width": 800,
         "height": 600,
         "useHttpsScheme": true

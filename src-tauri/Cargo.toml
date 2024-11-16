@@ -1,6 +1,6 @@
 [package]
 name = "snotes-deck"
-version = "0.0.0"
+version = "0.0.14"
 description = "A simple little Note App"
 authors = ["you"]
 edition = "2021"

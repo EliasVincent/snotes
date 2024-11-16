@@ -56,7 +56,7 @@ pub fn create_note(content: &String, tag: &String) -> Result<()> {
 
     let query_insert = "INSERT INTO notes (content, date, tag) VALUES (?1, ?2, ?3)";
 
-    match connection.execute(query_insert, [&content, &date_string, &tag_string]) {
+    match connection.execute(query_insert, [content, &date_string, &tag_string]) {
         Ok(v) => println!("CREATE OK {}", v),
         Err(e) => println!("CREATE ERR {}", e),
     };
@@ -239,7 +239,7 @@ pub fn get_note_by_id(id: u32) -> Result<String, String> {
     let db = get_db_dir();
     let connection = Connection::open(db).map_err(|e| format!("Database Error: {}", e))?;
 
-    let query = format!("SELECT * FROM notes WHERE nid IS {};", id.to_string());
+    let query = format!("SELECT * FROM notes WHERE nid IS {};", id);
     let mut prepare = connection
         .prepare(&query)
         .map_err(|e| format!("Query Error: {}", e))?;
@@ -289,6 +289,5 @@ mod tests {
     fn test_id_10() {
         let result = get_note_by_id(10).unwrap();
         println!("{}", result);
-        assert!(true)
     }
 }

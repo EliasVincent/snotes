@@ -46,15 +46,24 @@
   background-color: #1f1f1f;
   margin-left: 1em;
   width: 100%;
-  height: 100%;
-
-  border-radius: 15px;
-
+  height: calc(100vh - 1vh);
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+}
 
-
+#create-input {
+  flex-grow: 1;
+  margin: 0.5em;
+  font-size: 16px;
+  line-height: 1.5;
+  padding: 10px;
+  border: 1px solid #3b3b3b;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  resize: none;
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  background-color: #252525;
+  color: #f6f6f6;
 }
 
 .row {
@@ -338,9 +347,11 @@ button {
   display: none;
 
   position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 
-  margin-top: 20%;
-  margin-left: 50%;
+  padding: 2em;
 
   z-index: 4;
 }

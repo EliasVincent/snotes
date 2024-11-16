@@ -24,6 +24,7 @@ let idModalActive = false;
 
 let typingTimer: number | null = null;
 const AUTOSAVE_DELAY = 5000;
+const BACKGROUND_COLOR = "#252525";
 
 enum EditorState {
   NEW,
@@ -692,9 +693,18 @@ async function exportNote(contents: string | null) {
   }
 }
 
-function handleOpenSettingsModal() {
+async function handleOpenSettingsModal() {
+  // insert app version
+  const appVersionEl = document.getElementById("app-version");
+  if (appVersionEl) {
+    const VERSION_STR = await invoke("get_app_version");
+    appVersionEl.textContent = "version " + VERSION_STR;
+  } else {
+    console.error("Failed to get app version element.");
+  }
+  // open modal
   const modalBg = document.getElementById("id-modal-bg");
-  const setingsModalContainer = document.getElementById(
+  const settingsModalContainer = document.getElementById(
     "settings-modal-container"
   );
   const settingsFontsizeInput = document.getElementById(
@@ -704,15 +714,16 @@ function handleOpenSettingsModal() {
     "ocr-language-setting-input"
   ) as HTMLInputElement;
   const settingsSaveButton = document.getElementById("save-settings-button");
-  if (modalBg && setingsModalContainer && settingsFontsizeInput) {
+  if (modalBg && settingsModalContainer && settingsFontsizeInput) {
     modalBg.style.display = "block";
-    setingsModalContainer.style.display = "block";
+    settingsModalContainer.style.display = "block";
+    settingsModalContainer.style.backgroundColor = BACKGROUND_COLOR;
     settingsFontsizeInput.focus();
     settingsFontsizeInput.value = settings ? settings.fontSize : "16";
     settingsOcrLanguageInput.value = settings ? settings.ocrLanguage : "eng";
 
     modalBg.addEventListener("click", () => {
-      setingsModalContainer.style.display = "none";
+      settingsModalContainer.style.display = "none";
       modalBg.style.display = "none";
     });
 
@@ -737,11 +748,11 @@ function handleOpenSettingsModal() {
           } else {
             console.error("failed to get createNoteContentEl");
           }
-          setingsModalContainer.style.display = "none";
+          settingsModalContainer.style.display = "none";
           modalBg.style.display = "none";
         }
         if (event.key === "Escape") {
-          setingsModalContainer.style.display = "none";
+          settingsModalContainer.style.display = "none";
           modalBg.style.display = "none";
         }
       }
@@ -766,7 +777,7 @@ function handleOpenSettingsModal() {
         } else {
           console.error("failed to get createNoteContentEl");
         }
-        setingsModalContainer.style.display = "none";
+        settingsModalContainer.style.display = "none";
         modalBg.style.display = "none";
       });
     } else {

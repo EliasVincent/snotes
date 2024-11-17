@@ -1,97 +1,143 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="/src/styles.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Snotes</title>
+    <script type="module" src="/src/main.ts" defer></script>
+    <style>
+      .logo.vite:hover {
+        filter: drop-shadow(0 0 2em #747bff);
+      }
 
-<head>
-  <meta charset="UTF-8" />
-  <link rel="stylesheet" href="/src/styles.css" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Snotes</title>
-  <script type="module" src="/src/main.ts" defer></script>
-  <style>
-    .logo.vite:hover {
-      filter: drop-shadow(0 0 2em #747bff);
-    }
+      .logo.typescript:hover {
+        filter: drop-shadow(0 0 2em #2d79c7);
+      }
+    </style>
+  </head>
 
-    .logo.typescript:hover {
-      filter: drop-shadow(0 0 2em #2d79c7);
-    }
-  </style>
-</head>
-
-<body>
-  <div class="menu" id="contextMenu">
-    <button id="deleteButton">Delete</button>
-  </div>
-  <div class="top-bar">
-    <div id="button-row">
-      <button class="row" id="show-notes-button">Refresh Notes</button>
-      <button class="row" type="submit" id="save-button">Save</button>
-      <button class="row" id="new-button">New</button>
-      <button class="row" id="image-button">OCR</button>
-      <button class="row" id="export-button">Export</button>
-      <button class="row" id="settings-button">Settings</button>
-      <input type="file" id="fileInput" accept="image/*" style="display: none;" />
+  <body>
+    <div class="menu" id="contextMenu">
+      <button id="deleteButton">Delete</button>
     </div>
-  </div>
-  <div class="container">
-    <div class="sidebar">
-      <div class="resizable-handle"></div>
-      <div class="searchbar-container">
-        <img id="reverse-icon-asc" src="./src/assets/sort-from-bottom-to-top.svg">
-        <img id="reverse-icon-desc" src="./src/assets/sort-from-top-to-bottom.svg">
-        <input type="text" name="note-search" id="note-searchbar" placeholder="Search...">
+    <div class="top-bar">
+      <div id="button-row">
+        <button class="row" id="show-notes-button">Refresh Notes</button>
+        <button class="row" type="submit" id="save-button">Save</button>
+        <button class="row" id="new-button">New</button>
+        <button class="row" id="image-button">OCR</button>
+        <button class="row" id="export-button">Export</button>
+        <button class="row" id="settings-button">Settings</button>
+        <input
+          type="file"
+          id="fileInput"
+          accept="image/*"
+          style="display: none"
+        />
       </div>
-      <div class="note-sidebar-container unselectable" id="note-sidebar-container">
-        <!-- This is how the generated notes will look like:
+    </div>
+    <div class="container">
+      <div class="sidebar">
+        <div class="resizable-handle"></div>
+        <div class="searchbar-container">
+          <img
+            id="reverse-icon-asc"
+            src="./src/assets/sort-from-bottom-to-top.svg"
+          />
+          <img
+            id="reverse-icon-desc"
+            src="./src/assets/sort-from-top-to-bottom.svg"
+          />
+          <input
+            type="text"
+            name="note-search"
+            id="note-searchbar"
+            placeholder="Search..."
+          />
+        </div>
+        <div
+          class="note-sidebar-container unselectable"
+          id="note-sidebar-container"
+        >
+          <!-- This is how the generated notes will look like:
           <div class="sidebar-note rightclick-element">
             <span class="sidebar-note-id">1</span>
             <span class="sidebar-note-content">Lorem ipsum dolor sit amet...</span>
             <span class="sidebar-note-tag">Tag</span>
           </div>
           -->
-      </div>
-    </div>
-    <div class="editor">
-      <input autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" id="create-tag"
-        placeholder="Tag..." />
-
-      <textarea autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" id="create-input"
-        placeholder="Type your note here..."></textarea>
-
-      <p id="create-msg"></p>
-
-      <p style="white-space: pre-line" id="notes-list"></p>
-
-    </div>
-
-    <div id="id-modal-bg"></div>
-    <div id="id-modal-container">
-      <div class="openbyid-bar-container">
-        <input type="text" name="id-search" id="id-search" placeholder="Note ID...">
-      </div>
-    </div>
-
-    <div id="settings-modal-container">
-      <div class="settings-flex">
-        <h2 class="row"><code>SNOTES</code></h2>
-        <p><small id="app-version"></small></p>
-        <div class="fontsize-setting">
-          <h3>Font Size (in px)</h3>
-          <input type="number" name="fontsize" id="fontsize-setting-input" placeholder="">
         </div>
-        <div id="ocrlanguage-setting">
-          <div>
-            <h3>OCR Language</h3> <a style="display: inline;" href="https://tesseract-ocr.github.io/tessdoc/Data-Files"
-              target="_blank">Language
-              Codes</a>
+      </div>
+      <div class="editor">
+        <input
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          id="create-tag"
+          placeholder="Tag..."
+        />
+
+        <textarea
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          id="create-input"
+          placeholder="Type your note here..."
+        ></textarea>
+
+        <p id="create-msg"></p>
+
+        <p style="white-space: pre-line" id="notes-list"></p>
+      </div>
+
+      <div id="id-modal-bg"></div>
+      <div id="id-modal-container">
+        <div class="openbyid-bar-container">
+          <input
+            type="text"
+            name="id-search"
+            id="id-search"
+            placeholder="Note ID..."
+          />
+        </div>
+      </div>
+
+      <div id="settings-modal-container">
+        <div class="settings-flex">
+          <h2 class="row"><code>SNOTES</code></h2>
+          <p><small id="app-version"></small></p>
+          <div class="fontsize-setting">
+            <h3>Font Size (in px)</h3>
+            <input
+              type="number"
+              name="fontsize"
+              id="fontsize-setting-input"
+              placeholder=""
+            />
           </div>
-          <input type="text" name="ocrlanguage" id="ocr-language-setting-input" placeholder="eng">
+          <div id="ocrlanguage-setting">
+            <div>
+              <h3>OCR Language</h3>
+              <a
+                style="display: inline"
+                href="https://tesseract-ocr.github.io/tessdoc/Data-Files"
+                target="_blank"
+                >Language Codes</a
+              >
+            </div>
+            <input
+              type="text"
+              name="ocrlanguage"
+              id="ocr-language-setting-input"
+              placeholder="eng"
+            />
+          </div>
+          <button class="save-button" id="save-settings-button">Save</button>
         </div>
-        <button class="save-button" id="save-settings-button">Save</button>
       </div>
     </div>
-
-
-</body>
-
+  </body>
 </html>

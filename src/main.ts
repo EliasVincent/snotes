@@ -25,6 +25,7 @@ let idModalActive = false;
 let typingTimer: number | null = null;
 const AUTOSAVE_DELAY = 5000;
 const BACKGROUND_COLOR = "#252525";
+const BACKGROUND_COLOR_HOVER = "#5C5C5C";
 
 enum EditorState {
   NEW,
@@ -520,8 +521,24 @@ function handleKeyboardShortcuts(event: KeyboardEvent) {
     event.preventDefault();
     showNotes();
   }
+  // focus editor
+  if (event.ctrlKey && event.key === "h") {
+    event.preventDefault();
+    if (createNoteContentEl) {
+      createNoteContentEl.focus();
+    }
+  }
+  // focus tags
+  if (event.ctrlKey && event.key === "j") {
+    event.preventDefault();
+    if (createNoteTagEl) {
+      createNoteTagEl.focus();
+    }
+  }
+  // TODO: if we're focused the searchbox, arrow down will focus on the first result in the list
+
   // focus searchbox
-  if (event.ctrlKey && event.key === "f") {
+  if (event.ctrlKey && event.key === "p") {
     event.preventDefault();
     if (searchbarEl) {
       searchbarEl.focus();
@@ -573,8 +590,229 @@ function handleKeyboardShortcuts(event: KeyboardEvent) {
     }
   }
   // quick switch note 1-9
+  if (event.ctrlKey && event.key === "f") {
+    openSearchModal();
+  }
+}
+interface SearchResult {
+  text: string;
+  startIndex: number;
+  endIndex: number;
 }
 
+/**
+ * TODO: when clicked should it close the search results?
+ * @returns void
+ */
+function openSearchModal() {
+  const createNoteContentEl = document.querySelector(
+    "textarea"
+  ) as HTMLTextAreaElement;
+  if (!createNoteContentEl) return;
+
+  const modalBg = document.createElement("div");
+  modalBg.id = "search-modal-bg";
+  modalBg.style.cssText = `
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1000;
+  `;
+
+  const modal = document.createElement("div");
+  modal.id = "search-modal";
+  modal.style.cssText = `
+    display: block;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: ${BACKGROUND_COLOR};
+    padding: 1rem;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    z-index: 1001;
+    width: 80%;
+    max-width: 600px;
+    border-radius: 4px;
+  `;
+
+  const searchInput = document.createElement("input");
+  searchInput.type = "text";
+  searchInput.placeholder = "Search this note...";
+  searchInput.style.cssText = `
+    width: 100%;
+    padding: .5rem;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: .25rem;
+    margin-bottom: 1rem;
+  `;
+
+  const resultContainer = document.createElement("div");
+  resultContainer.id = "search-results";
+  resultContainer.style.cssText = `
+    width: 100%;
+    max-height: 300px;
+    overflow-y: auto;
+    border-top: 1px solid #ccc;
+    background-color: ${BACKGROUND_COLOR};
+  `;
+
+  // Close button
+  const closeButton = document.createElement("button");
+  closeButton.textContent = "×";
+  closeButton.style.cssText = `
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none;
+    background: none;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 5px;
+  `;
+
+  // Append elements to the modal
+  modal.appendChild(closeButton);
+  modal.appendChild(searchInput);
+  modal.appendChild(resultContainer);
+
+  // Append the modal to the body
+  document.body.appendChild(modalBg);
+  document.body.appendChild(modal);
+
+  // Add focus
+  searchInput.focus();
+
+  function findSearchResults(searchTerm: string): SearchResult[] {
+    const content = createNoteContentEl.value;
+    const results: SearchResult[] = [];
+
+    if (!searchTerm) return results;
+
+    const lines = content.split("\n");
+    let currentIndex = 0;
+
+    for (const line of lines) {
+      const lowerLine = line.toLowerCase();
+      const searchTermLower = searchTerm.toLowerCase();
+      let position = lowerLine.indexOf(searchTermLower);
+
+      while (position !== -1) {
+        results.push({
+          text: line,
+          startIndex: currentIndex + position,
+          endIndex: currentIndex + position + searchTerm.length,
+        });
+        position = lowerLine.indexOf(searchTermLower, position + 1);
+      }
+      currentIndex += line.length + 1; // +1 for the newline character
+    }
+
+    return results;
+  }
+
+  // filter content
+  searchInput.addEventListener("input", () => {
+    const searchTerm = searchInput.value;
+    const results = findSearchResults(searchTerm);
+
+    // Display results
+    resultContainer.innerHTML = "";
+    results.forEach((result) => {
+      const p = document.createElement("p");
+
+      // Highlight matches
+      const beforeMatch = result.text.substring(
+        0,
+        result.text.toLowerCase().indexOf(searchTerm.toLowerCase())
+      );
+      const match = result.text.substring(
+        result.text.toLowerCase().indexOf(searchTerm.toLowerCase()),
+        result.text.toLowerCase().indexOf(searchTerm.toLowerCase()) +
+          searchTerm.length
+      );
+      const afterMatch = result.text.substring(
+        result.text.toLowerCase().indexOf(searchTerm.toLowerCase()) +
+          searchTerm.length
+      );
+
+      p.innerHTML = `${beforeMatch}<mark>${match}</mark>${afterMatch}`;
+      p.style.cssText = `
+        margin: 0.5rem 0;
+        padding: 0.5rem;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+      `;
+      p.addEventListener("mouseover", () => {
+        p.style.backgroundColor = BACKGROUND_COLOR_HOVER;
+      });
+      p.addEventListener("mouseout", () => {
+        p.style.backgroundColor = "transparent";
+      });
+      p.addEventListener("click", () => selectResult(result));
+      resultContainer.appendChild(p);
+    });
+  });
+
+  function closeModal() {
+    modal.remove();
+    modalBg.remove();
+  }
+
+  // Close modal
+  modalBg.addEventListener("click", closeModal);
+  closeButton.addEventListener("click", closeModal);
+  modal.addEventListener("click", (e) => e.stopPropagation());
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      closeModal();
+    }
+  });
+}
+
+/**
+ * Scroll to and focus on the clicked result in the Editor
+ *
+ * @param result the search result
+ * @returns void
+ */
+function selectResult(result: SearchResult) {
+  const createNoteContentEl = document.querySelector(
+    "textarea"
+  ) as HTMLTextAreaElement;
+  if (!createNoteContentEl) return;
+
+  createNoteContentEl.focus();
+  createNoteContentEl.setSelectionRange(result.startIndex, result.endIndex);
+
+  // Calculate the position of the selection
+  const textBeforeSelection = createNoteContentEl.value.substring(
+    0,
+    result.startIndex
+  );
+  const lines = textBeforeSelection.split("\n");
+  const lineNumber = lines.length;
+
+  // Get the line height (fallback to 20 if computation fails)
+  const computedLineHeight =
+    parseInt(getComputedStyle(createNoteContentEl).lineHeight) || 20;
+
+  // Calculate scroll position to center the selection in the viewport
+  const targetPosition = (lineNumber - 1) * computedLineHeight;
+  const textareaHeight = createNoteContentEl.clientHeight;
+  const scrollPosition = Math.max(0, targetPosition - textareaHeight / 2);
+
+  createNoteContentEl.scrollTo({
+    top: scrollPosition,
+    behavior: "smooth",
+  });
+}
 /**
  * Searches for note and displays the results accordingly
  */
